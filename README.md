@@ -1,2 +1,7 @@
 # Corrupt
-Corrupt, the stealth game of the year (2017)
+# Character Interactions
+
+This branch is only for headers and cpps that interact with the characters.h
+file. They can also interact with the enemy classes, Keyholder and Guard. All
+prerequisites for the guards except for the behaviour is complete. Behaviour 
+is how the guards move
