@@ -4,16 +4,16 @@
 
 #define pi 3.141592654
 
-KeyHolder::KeyHolder(int x, int y)
+KeyHolder::KeyHolder(float x, float y)
 {
-	flashlight = true;
-	key = true;
-	setCoord(x, y);
+	flashlight = true; //sets keyholder flashlight to true
+	key = true; //sets the keyholder guard's key stat to true
+	setCoord(x, y); //sets keyholder location
 }
 
 KeyHolder::KeyHolder()
 {
-	key = true;
+	key = true; //sets default keyholder to 
 	flashlight = true;
 }
 
@@ -25,17 +25,15 @@ bool KeyHolder::fieldOfView(COORD player) //this is where the magic is
 	if (magnitude <= 20 && (angle < (30 * pi)/180 && angle > -(30 * pi)/180))	//this is the magic, if the player exists
 	{																			//within a certain range of angles
 		key = false;															//that add up to a 60 degree FOV
-		std::cout << "Spotted" << std::endl;
-		return true;															//and about 20 (pixels probably?)									
-	}																			//also, the key is destroyed upon a keyholder seeing the player									
-	else																		//If not, then the enemy has not seen the player		
-	{																			//thus, nothing happens					
-		std::cout << "Hidden" << std::endl;
-		return false;															//and these comments are useless								
-	}																			//Hello World! Press any key to continue...		
+		return true;															//and about 20 (pixels probably?)
+	}																			//also, the key is destroyed upon a keyholder seeing the player
+	else																		//If not, then the enemy has not seen the player
+	{																			//thus, nothing happens
+		return false;															//and these comments are useless
+	}																			//Hello World! Press any key to continue...
 }
 
-void KeyHolder::setCoord(int x, int y) //sets up the enemy's location based on the system's input
+void KeyHolder::setCoord(float x, float y) //sets up the enemy's location based on the system's input
 {
 	enemy.X = x;
 	enemy.Y = y;
@@ -46,17 +44,17 @@ COORD KeyHolder::getCoord() const //returns the whole enemy coordinate, might no
 	return enemy;
 }
 
-int KeyHolder::getX() const	//returns only the enemy's X value
+float KeyHolder::getX() const	//returns only the enemy's X value
 {							//believe me, it's more efficient
 	return enemy.X;
 }
 
-int KeyHolder::getY() const //returns only the enemy's Y value location
+float KeyHolder::getY() const //returns only the enemy's Y value location
 {							//trust
 	return enemy.Y;
 }
 
-void KeyHolder::setDirection(int x, int y) //sets the direction, based on what is set by the system
+void KeyHolder::setDirection(float x, float y) //sets the direction, based on what is set by the system
 {
 	direction = vec2(x, y);
 }
@@ -90,7 +88,7 @@ Player::~Player()
 	//do absolutely NOTHING here. EVER!!!
 }
 
-void Player::setCoord(int x, int y) //assigns the Coordinates of the player using a custom structure
+void Player::setCoord(float x, float y) //assigns the Coordinates of the player using a custom structure
 {
 	player.X = x;
 	player.Y = y;
@@ -109,6 +107,12 @@ void Player::pickPocket(bool &enemykey) //allows the player to steal the key of 
 	}
 }
 
+void Player::openLock(bool &doorlock)
+{
+	doorlock = false;
+	key = false;
+}
+
 void Player::addEMP() //adds the EMP to the player depending on the location (only at techy stuff)
 {
 	EMP++;
@@ -119,12 +123,12 @@ COORD Player::getCoord() const //returns the player's location
 	return player;
 }
 
-int Player::getX() const //returns only the X value of the player's location
+float Player::getX() const //returns only the X value of the player's location
 {						 //believe me, it IS more efficient this way
 	return player.X;
 }
 
-int Player::getY() const //returns only the Y value of the location, for the reasons listed above
+float Player::getY() const //returns only the Y value of the location, for the reasons listed above
 {						 //trust
 	return player.Y;
 }

@@ -2,6 +2,6 @@
 
 struct COORD
 {
-	int X;
-	int Y;
+	float X;
+	float Y;
 };

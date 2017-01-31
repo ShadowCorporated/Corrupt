@@ -1,7 +1,7 @@
 #include "vectory.h"
 #include <cmath>
 
-vec2::vec2(int vx, int vy)
+vec2::vec2(float vx, float vy)
 {
 	x = vx;
 	y = vy;
