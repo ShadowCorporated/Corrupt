@@ -14,10 +14,10 @@ class KeyHolder : public Character
 public:
 	KeyHolder(float x, float y);
 	KeyHolder();
-	bool fieldOfView(COORD player); //calculates if the player is within the enemies FOV
+	bool fieldOfView(COORD2 player); //calculates if the player is within the enemies FOV
 
 	void setCoord(float x, float y); //sets up the enemies' coordinates on the plane
-	COORD getCoord() const; //returns the enemy Coordinates
+	COORD2 getCoord() const; //returns the enemy Coordinates
 
 	void setDirection(float x, float y); //sets the direction of vision vector of the enemies
 	vec2 getDirection() const; //returns that selfsame vector, might not be needed, might be deleted later
@@ -26,17 +26,17 @@ public:
 	float getY() const; //gets only the y coordinate
 private:
 	vec2 direction; //the direction of the enemies' line of sight
-	COORD enemy; //the coordinates of the enemy
+	COORD2 enemy; //the coordinates of the enemy
 };
 
 class Guard : public KeyHolder //for the FOV functionality, hell yeah!
 {
 public:
-	Guard(int x, int y); //different declaration of subtype of Keyholder. Guard.key = false
+	Guard(float x, float y); //different declaration of subtype of Keyholder. Guard.key = false
 	Guard();
 private:
 	vec2 direction;
-	COORD enemy;
+	COORD2 enemy;
 };
 
 class Player : public Character
@@ -48,12 +48,12 @@ public:
 
 	void setCoord(float x, float y);
 	void addEMP();
-	COORD getCoord() const;
+	COORD2 getCoord() const;
 
 	float getX() const;
 	float getY() const;
 	~Player();
 private:
 	int EMP;
-	COORD player;
+	COORD2 player;
 };

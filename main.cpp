@@ -23,7 +23,7 @@ int main()
 
 	vec2 range(player.getX() - guards[1].getX(), player.getY() - guards[1].getY());
 	float magnitude = range.getMagnitude(range);
-	for (int i = 0; i < guards.size(); i++)
+	for (unsigned int i = 0; i < guards.size(); i++)
 	{
 		guards[i].setDirection(-1, -1);
 

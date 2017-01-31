@@ -6,9 +6,9 @@
 class Door
 {
 public:
-	Door(COORD, bool = true);
+	Door(COORD2, bool = true);
 	~Door();
 private:
 	bool locked;
-	COORD location;
+	COORD2 location;
 };

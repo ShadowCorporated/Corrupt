@@ -17,7 +17,7 @@ KeyHolder::KeyHolder()
 	flashlight = true;
 }
 
-bool KeyHolder::fieldOfView(COORD player) //this is where the magic is
+bool KeyHolder::fieldOfView(COORD2 player) //this is where the magic is
 {
 	vec2 view(enemy.X - player.X, enemy.Y - player.Y);
 	float magnitude = view.getMagnitude(view); //declared in vectory.cpp
@@ -39,7 +39,7 @@ void KeyHolder::setCoord(float x, float y) //sets up the enemy's location based 
 	enemy.Y = y;
 }
 
-COORD KeyHolder::getCoord() const //returns the whole enemy coordinate, might not be needed
+COORD2 KeyHolder::getCoord() const //returns the whole enemy coordinate, might not be needed
 {
 	return enemy;
 }
@@ -70,7 +70,7 @@ Guard::Guard()
 	key = false;
 }
 
-Guard::Guard(int x, int y)
+Guard::Guard(float x, float y)
 {
 	flashlight = true;
 	key = false;
@@ -118,7 +118,7 @@ void Player::addEMP() //adds the EMP to the player depending on the location (on
 	EMP++;
 }
 
-COORD Player::getCoord() const //returns the player's location
+COORD2 Player::getCoord() const //returns the player's location
 {
 	return player;
 }

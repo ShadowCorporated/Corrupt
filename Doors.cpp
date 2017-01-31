@@ -1,6 +1,6 @@
 #include "Doors.h"
 
-Door::Door(COORD locat, bool lock)
+Door::Door(COORD2 locat, bool lock)
 {
 	locked = lock;
 	location = locat;

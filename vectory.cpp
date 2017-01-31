@@ -23,7 +23,7 @@ float vec2::getMagnitude(vec2 vector)
 
 float vec2::getAngle(vec2 vector, vec2 direction)
 {
-	int dotproduct = (vector.x * direction.x) + (vector.y * direction.y);
+	float dotproduct = (vector.x * direction.x) + (vector.y * direction.y);
 	float mag1 = vector.getMagnitude(vector);
 	float mag2 = direction.getMagnitude(direction);
 	float angle = acos(dotproduct / (mag1 * mag2));

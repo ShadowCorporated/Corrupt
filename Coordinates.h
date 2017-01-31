@@ -1,6 +1,6 @@
 #pragma once
 
-struct COORD
+struct COORD2
 {
 	float X;
 	float Y;
