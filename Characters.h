@@ -43,7 +43,8 @@ class Player : public Character
 {
 public:
 	Player();
-	void pickPocket(bool enemykey);
+	void pickPocket(bool &enemykey);
+	void openLock(bool &doorlock);
 
 	void setCoord(int x, int y);
 	void addEMP();

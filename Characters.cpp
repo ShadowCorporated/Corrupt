@@ -96,10 +96,17 @@ void Player::setCoord(int x, int y) //assigns the Coordinates of the player usin
 	player.Y = y;
 }
 
-void Player::pickPocket(bool enemykey) //allows the player to steal the key of the nearest enemy with a key
+void Player::pickPocket(bool &enemykey) //allows the player to steal the key of the nearest enemy with a key
 {
-	key = true;
-	enemykey = false;
+	if (enemykey == true)
+	{
+		key = true;
+		enemykey = false;
+	}
+	else
+	{
+		key = false;
+	}
 }
 
 void Player::addEMP() //adds the EMP to the player depending on the location (only at techy stuff)
