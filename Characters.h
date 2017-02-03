@@ -27,6 +27,7 @@ public:
 private:
 	vec2 direction; //the direction of the enemies' line of sight
 	COORD2 enemy; //the coordinates of the enemy
+	bool left;
 };
 
 class Guard : public KeyHolder //for the FOV functionality, hell yeah!
@@ -37,6 +38,7 @@ public:
 private:
 	vec2 direction;
 	COORD2 enemy;
+	bool left;
 };
 
 class Player : public Character
