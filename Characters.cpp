@@ -19,18 +19,21 @@ KeyHolder::KeyHolder()
 
 bool KeyHolder::fieldOfView(COORD2 player) //this is where the magic is
 {
-	vec2 view(enemy.X - player.X, enemy.Y - player.Y);
-	float magnitude = view.getMagnitude(view); //declared in vectory.cpp
-	float angle = view.getAngle(view, direction); //also in vectory.cpp
-	if (magnitude <= 20 && (angle < (30 * pi)/180 && angle > -(30 * pi)/180))	//this is the magic, if the player exists
-	{																			//within a certain range of angles
-		key = false;															//that add up to a 60 degree FOV
-		return true;															//and about 20 (pixels probably?)
-	}																			//also, the key is destroyed upon a keyholder seeing the player
-	else																		//If not, then the enemy has not seen the player
-	{																			//thus, nothing happens
-		return false;															//and these comments are useless
-	}																			//Hello World! Press any key to continue...
+	if (this->flashlight = true) //while the flashlight is
+	{
+		vec2 view(enemy.X - player.X, enemy.Y - player.Y);
+		float magnitude = view.getMagnitude(view); //declared in vectory.cpp
+		float angle = view.getAngle(view, direction); //also in vectory.cpp
+		if (magnitude <= 20 && (angle < (30 * pi) / 180 && angle > -(30 * pi) / 180))	//this is the magic, if the player exists
+		{																			//within a certain range of angles
+			key = false;															//that add up to a 60 degree FOV
+			return true;															//and about 20 (pixels probably?)
+		}																			//also, the key is destroyed upon a keyholder seeing the player
+		else																		//If not, then the enemy has not seen the player
+		{																			//thus, nothing happens
+			return false;															//and these comments are useless
+		}
+	}																				//Hello World! Press any key to continue...
 }
 
 void KeyHolder::setCoord(float x, float y) //sets up the enemy's location based on the system's input
@@ -103,7 +106,7 @@ void Player::pickPocket(bool &enemykey) //allows the player to steal the key of 
 	}
 	else
 	{
-		key = false;
+
 	}
 }
 
@@ -118,8 +121,15 @@ void Player::useEMP(std::vector<KeyHolder> guards)
 
 void Player::openLock(bool &doorlock)
 {
-	doorlock = false;
-	key = false;
+	if (doorlock)
+	{
+		doorlock = false;
+		key = false;
+	}
+	else
+	{
+
+	}
 }
 
 void Player::addEMP(int device) //adds the EMP to the player depending on the location (only at techy stuff)

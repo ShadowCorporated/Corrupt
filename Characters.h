@@ -2,12 +2,13 @@
 
 #include "Coordinates.h"
 #include "vectory.h"
+#include "Doors.h"
 #include <vector>
 
 struct Character
 {
-	bool flashlight;
-	bool key;
+	bool flashlight; //guards equal true intil useEMP()
+	bool key; //if the player/enemy has a key = true
 };
 
 class KeyHolder : public Character
@@ -42,19 +43,19 @@ class Player : public Character
 {
 public:
 	Player();
-	void pickPocket(bool &enemykey);
-	void openLock(bool &doorlock);
+	void pickPocket(bool &enemykey); //allows the player to steal keys
+	void openLock(bool &doorlock); //allows the player to unlock doors
 
-	void setCoord(float x, float y);
-	void addEMP( int );
-	void useEMP(std::vector<KeyHolder>);
+	void setCoord(float x, float y); //sets the player position on the map
+	void addEMP( int ); //adds EMP's to the player inventory
+	void useEMP(std::vector<KeyHolder>); //lets the player use EMPs to knock out enemy lights
 
-	COORD2 getCoord() const;
+	COORD2 getCoord() const; //returns the coordinate of the player
 
-	float getX() const;
-	float getY() const;
-	~Player();
+	float getX() const; //returns the x value of the player coordinate
+	float getY() const; //returns the y value of the player coordinate
+	~Player(); //destroys the player
 private:
-	int EMP;
-	COORD2 player;
+	int EMP; //contains the number of EMP's the player is holding
+	COORD2 player; //contain's the player coordinates
 };
