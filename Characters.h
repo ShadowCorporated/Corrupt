@@ -2,6 +2,7 @@
 
 #include "Coordinates.h"
 #include "vectory.h"
+#include <vector>
 
 struct Character
 {
@@ -24,7 +25,7 @@ public:
 
 	float getX() const; //gets only the X coordinate
 	float getY() const; //gets only the y coordinate
-private:
+protected:
 	vec2 direction; //the direction of the enemies' line of sight
 	COORD2 enemy; //the coordinates of the enemy
 	bool left;
@@ -35,10 +36,6 @@ class Guard : public KeyHolder //for the FOV functionality, hell yeah!
 public:
 	Guard(float x, float y); //different declaration of subtype of Keyholder. Guard.key = false
 	Guard();
-private:
-	vec2 direction;
-	COORD2 enemy;
-	bool left;
 };
 
 class Player : public Character
@@ -49,7 +46,9 @@ public:
 	void openLock(bool &doorlock);
 
 	void setCoord(float x, float y);
-	void addEMP();
+	void addEMP( int );
+	void useEMP(std::vector<KeyHolder>);
+
 	COORD2 getCoord() const;
 
 	float getX() const;
