@@ -13,6 +13,7 @@ using namespace spritelib;
 //Shader vertexShader, fragmentShader;
 //ShaderProgram shaderprogram;
 
+Sprite mainCharacter;
 
 Player player;
 float x = 300.0f;
@@ -71,6 +72,11 @@ void KeyboardFunc(Window::Key a_key, Window::EventType a_eventType)
 		{
 			right = false;
 		}
+
+		if (a_key == Window::Key::Space)
+		{
+			//nothing right now
+		}
 	}
 		break;
 	}
@@ -80,13 +86,13 @@ void KeyboardFunc(Window::Key a_key, Window::EventType a_eventType)
 int main()
 {
 	Window& game = Window::get_game_window();
-	game.init("Corrupt", 600, 400)
+	game.init("Corrupt", 1280, 720)
 		.set_clear_color(0, 255, 255);
 
-	Sprite mainCharacter;
 	mainCharacter.load_sprite_image("assets/images/RighteousThief.png")
 		.set_scale(128, 128)
-		.set_position(player.getX(), player.getY());
+		.set_position(player.getX(), player.getY())
+		.set_sprite_frame_size(128, 128);
 		//.push_frame_row("Idle", 0, 0, )
 
 	while (game.update(30))
@@ -95,13 +101,16 @@ int main()
 
 		//draw a test "ground"
 		Shapes::set_color(1.0f, 0.0f, 1.0f);
-		Shapes::draw_rectangle(true, gx, gy, 600, 50);
+		Shapes::draw_rectangle(true, gx, gy, 1280, 50);
+
+		Shapes::draw_rectangle(true, gx, gy, 280, 50);
 		
 		//draw a test "player:
-		Shapes::set_color(0, 0, 0);
-		Shapes::draw_rectangle(true, player.getX(), player.getY(), 20, 20); //use of player.getX() and getY() are from the player class and COORD
+		//Shapes::set_color(0, 0, 0);
+		//Shapes::draw_rectangle(true, player.getX(), player.getY(), 20, 20); //use of player.getX() and getY() are from the player class and COORD
 	
 		mainCharacter.set_position(player.getX(), player.getY());
+		mainCharacter.draw();
 		if (left == true)
 		{
 			velocity.x = -50.0f;
@@ -122,7 +131,7 @@ int main()
 		//can then use world objects and player object to determine collision and if player stops
 
 		//for now use y coord to determine where the player is affected by gravity
-		if (y > 51)
+		if (y > 50)
 		{
 			jump = true;
 			velocity.y += gravity.y * (1.0f / 30.0f); //this equation effects the y coord of the player
