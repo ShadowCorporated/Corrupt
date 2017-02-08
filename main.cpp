@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <Windows.h>
 #include "Characters.h"
 
 using namespace std;
@@ -23,17 +24,32 @@ int main()
 
 	vec2 range(player.getX() - guards[1].getX(), player.getY() - guards[1].getY());
 	float magnitude = range.getMagnitude(range);
-	for (unsigned int i = 0; i < guards.size(); i++)
+	while (true)
 	{
-		guards[i].setDirection(-1, -1);
+		system("cls");
+		for (unsigned int i = 0; i < guards.size(); i++)
+		{
+			vec2 range(player.getX() - guards[1].getX(), player.getY() - guards[1].getY());
+			float magnitude = range.getMagnitude(range);
 
-		if (guards[i].fieldOfView(player.getCoord()))
-		{
-			cout << "You have been caught" << endl;
+			guards[i].setDirection(0, 1);
+
+			if (guards[i].fieldOfView(player.getCoord()))
+			{
+				cout << "You have been caught" << endl;
+			}
+			else
+			{
+				cout << "You are undetected" << endl;
+			}
 		}
-		else
+		if (GetAsyncKeyState('Q'))
 		{
-			cout << "You are undetected" << endl;
+			player.useEMP(guards);
 		}
 	}
+
+	system("PAUSE");
+
+	return 0;
 }
