@@ -19,7 +19,7 @@ KeyHolder::KeyHolder()
 
 bool KeyHolder::fieldOfView(COORD2 player) //this is where the magic is
 {
-	if (this->flashlight = true) //while the flashlight is
+	if (flashlight == true) //while the flashlight is
 	{
 		vec2 view(enemy.X - player.X, enemy.Y - player.Y);
 		float magnitude = view.getMagnitude(view); //declared in vectory.cpp
@@ -33,7 +33,11 @@ bool KeyHolder::fieldOfView(COORD2 player) //this is where the magic is
 		{																			//thus, nothing happens
 			return false;															//and these comments are useless
 		}
-	}																				//Hello World! Press any key to continue...
+	}
+	else
+	{
+		return false;																//Hello World!Press any key to continue...
+	}
 }
 
 void KeyHolder::setCoord(float x, float y) //sets up the enemy's location based on the system's input
@@ -84,6 +88,7 @@ Player::Player() //the player will never have a true flashlight, but could have 
 {
 	key = false;
 	flashlight = false;
+	EMP = 1;
 }
 
 Player::~Player()
@@ -110,12 +115,15 @@ void Player::pickPocket(bool &enemykey) //allows the player to steal the key of 
 	}
 }
 
-void Player::useEMP(std::vector<KeyHolder> guards)
+void Player::useEMP(std::vector<KeyHolder> &guards)
 {
-	EMP--;
-	for (int i = 0; i < guards.size(); i++)
+	if (EMP > 0)
 	{
-		guards[i].flashlight = false;
+		EMP--;
+		for (int i = 0; i < guards.size(); i++)
+		{
+			guards[i].flashlight = false;
+		}
 	}
 }
 
