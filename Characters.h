@@ -3,6 +3,7 @@
 #include "Coordinates.h"
 #include "vectory.h"
 #include "Doors.h"
+#include "Electronics.h"
 #include <vector>
 
 struct Character
@@ -46,16 +47,23 @@ public:
 	void pickPocket(bool &enemykey); //allows the player to steal keys
 	void openLock(bool &doorlock); //allows the player to unlock doors
 
+	void setEMP(bool = false);
+	bool returnEMP() const;
+
 	void setCoord(float x, float y); //sets the player position on the map
-	void addEMP( int ); //adds EMP's to the player inventory
+	void setEMP(int); //allows easier modification of EMP variable.
+	void addEMP( SmallElectric &); //adds EMP's to the player inventory
 	void useEMP(std::vector<KeyHolder>&); //lets the player use EMPs to knock out enemy lights
+	int getEMP() const;
 
 	COORD2 getCoord() const; //returns the coordinate of the player
 
 	float getX() const; //returns the x value of the player coordinate
 	float getY() const; //returns the y value of the player coordinate
+
 	~Player(); //destroys the player
 private:
 	int EMP; //contains the number of EMP's the player is holding
+	bool EMPuse;
 	COORD2 player; //contain's the player coordinates
 };

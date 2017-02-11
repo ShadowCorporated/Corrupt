@@ -17,6 +17,14 @@ int main()
 	guards.push_back(guardOne);
 	guards.push_back(keyDude);
 
+	SmallElectric satellite;
+	satellite.setCOORD(12.0f, 13.0f);
+	satellite.setEMP(1);
+
+	BigElectric curcuit;
+	curcuit.setCOORD(13.0f, 13.0f);
+	curcuit.setEMP(2);
+
 
 	Player player;
 	player.setCoord(12.0f, 12.0f);
@@ -47,9 +55,24 @@ int main()
 		{
 			player.useEMP(guards);
 		}
-	}
+		else if (GetAsyncKeyState('E'))
+		{
+			player.addEMP(curcuit);
+			player.addEMP(satellite);
+		}
+		else if (GetAsyncKeyState(VK_ESCAPE))
+		{
+			break;
+		}
 
-	system("PAUSE");
+		if (player.returnEMP() == true)
+		{
+			player.setEMP((player.getEMP() - 1));
+			player.setEMP(false);
+		}
+
+		cout << "EMP: " << player.getEMP() << endl;
+	}
 
 	return 0;
 }

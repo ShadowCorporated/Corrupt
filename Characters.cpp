@@ -19,7 +19,7 @@ KeyHolder::KeyHolder()
 
 bool KeyHolder::fieldOfView(COORD2 player) //this is where the magic is
 {
-	if (flashlight == true) //while the flashlight is
+	if (flashlight == true) //while the flashlight is lit, then the enemy can spot the player
 	{
 		vec2 view(enemy.X - player.X, enemy.Y - player.Y);
 		float magnitude = view.getMagnitude(view); //declared in vectory.cpp
@@ -119,11 +119,14 @@ void Player::useEMP(std::vector<KeyHolder> &guards)
 {
 	if (EMP > 0)
 	{
-		EMP--;
 		for (int i = 0; i < guards.size(); i++)
 		{
 			guards[i].flashlight = false;
 		}
+	}
+	else
+	{
+		return;
 	}
 }
 
@@ -138,16 +141,38 @@ void Player::openLock(bool &doorlock)
 	{
 
 	}
+	EMPuse = true;
 }
 
-void Player::addEMP(int device) //adds the EMP to the player depending on the location (only at techy stuff)
+void Player::addEMP(SmallElectric &device) //adds the EMP to the player depending on the location (only at techy stuff)
 {
-	EMP += device;
+	EMP += device.getEMP();
+	device.setEMP();
+}
+
+void Player::setEMP(int count)
+{
+	EMP = count;
 }
 
 COORD2 Player::getCoord() const //returns the player's location
 {
 	return player;
+}
+
+int Player::getEMP() const
+{
+	return EMP; //returns number of emps
+}
+
+void Player::setEMP(bool use)
+{
+	EMPuse = use;
+}
+
+bool Player::returnEMP() const
+{
+	return EMPuse;
 }
 
 float Player::getX() const //returns only the X value of the player's location

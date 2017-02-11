@@ -5,13 +5,13 @@
 class SmallElectric
 {
 public:
-	SmallElectric(COORD2, int = 1);
+	SmallElectric(float, float, int = 1);
 	SmallElectric();
 
 	void setEMP(int = 0);
 	int getEMP() const;
 
-	void setCOORD(COORD2);
+	void setCOORD(float, float);
 	COORD2 getCOORD() const;
 
 	float getX() const;
@@ -26,7 +26,7 @@ private:
 class BigElectric : public SmallElectric
 {
 public:
-	BigElectric(COORD2, int = 2);
+	BigElectric(float, float, int = 2);
 	BigElectric();
 
 	~BigElectric();
