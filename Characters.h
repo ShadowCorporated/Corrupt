@@ -51,10 +51,9 @@ public:
 	bool returnEMP() const;
 
 	void setCoord(float x, float y); //sets the player position on the map
-	void setEMP(int); //allows easier modification of EMP variable.
 	void addEMP( SmallElectric &); //adds EMP's to the player inventory
 	void useEMP(std::vector<KeyHolder>&); //lets the player use EMPs to knock out enemy lights
-	int getEMP() const;
+	int getEMP();
 
 	COORD2 getCoord() const; //returns the coordinate of the player
 

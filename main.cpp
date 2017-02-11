@@ -51,24 +51,23 @@ int main()
 				cout << "You are undetected" << endl;
 			}
 		}
-		if (GetAsyncKeyState('Q'))
+		if (GetAsyncKeyState('Q') && !player.returnEMP())
 		{
 			player.useEMP(guards);
 		}
-		else if (GetAsyncKeyState('E'))
+		else if (!GetAsyncKeyState('Q'))
+		{
+			player.setEMP();
+		}
+
+		if (GetAsyncKeyState('E'))
 		{
 			player.addEMP(curcuit);
 			player.addEMP(satellite);
 		}
-		else if (GetAsyncKeyState(VK_ESCAPE))
+		if (GetAsyncKeyState(VK_ESCAPE))
 		{
 			break;
-		}
-
-		if (player.returnEMP() == true)
-		{
-			player.setEMP((player.getEMP() - 1));
-			player.setEMP(false);
 		}
 
 		cout << "EMP: " << player.getEMP() << endl;

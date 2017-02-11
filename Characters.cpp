@@ -117,12 +117,15 @@ void Player::pickPocket(bool &enemykey) //allows the player to steal the key of 
 
 void Player::useEMP(std::vector<KeyHolder> &guards)
 {
-	if (EMP > 0)
+	if (EMP > 0 && !EMPuse)
 	{
-		for (int i = 0; i < guards.size(); i++)
+		for (unsigned int i = 0; i < guards.size(); i++)
 		{
 			guards[i].flashlight = false;
 		}
+		EMPuse = true;
+		EMP--;
+		return;
 	}
 	else
 	{
@@ -141,7 +144,6 @@ void Player::openLock(bool &doorlock)
 	{
 
 	}
-	EMPuse = true;
 }
 
 void Player::addEMP(SmallElectric &device) //adds the EMP to the player depending on the location (only at techy stuff)
@@ -150,17 +152,13 @@ void Player::addEMP(SmallElectric &device) //adds the EMP to the player dependin
 	device.setEMP();
 }
 
-void Player::setEMP(int count)
-{
-	EMP = count;
-}
 
 COORD2 Player::getCoord() const //returns the player's location
 {
 	return player;
 }
 
-int Player::getEMP() const
+int Player::getEMP()
 {
 	return EMP; //returns number of emps
 }
