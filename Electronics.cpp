@@ -1,9 +1,9 @@
 #include "Electronics.h"
 
-SmallElectric::SmallElectric(COORD2 a_location, int emp)
+SmallElectric::SmallElectric(float x, float y, int emp)
 {
 	setEMP(emp);
-	setCOORD(a_location);
+	setCOORD(x, y);
 }
 
 SmallElectric::SmallElectric()
@@ -21,9 +21,10 @@ void SmallElectric::setEMP(int emp)
 	countEMP = emp;
 }
 
-void SmallElectric::setCOORD(COORD2 a_location)
+void SmallElectric::setCOORD(float x, float y)
 {
-	location = a_location;
+	location.X = x;
+	location.Y = y;
 }
 
 int SmallElectric::getEMP() const
@@ -46,9 +47,9 @@ float SmallElectric::getY() const
 	return location.Y;
 }
 
-BigElectric::BigElectric(COORD2 b_location, int emp)
+BigElectric::BigElectric(float x, float y, int emp)
 {
-	setCOORD(b_location);
+	setCOORD(x, y);
 	setEMP(emp);
 }
 
