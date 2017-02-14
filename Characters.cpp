@@ -24,7 +24,7 @@ bool KeyHolder::fieldOfView(COORD2 player) //this is where the magic is
 		vec2 view(enemy.X - player.X, enemy.Y - player.Y);
 		float magnitude = view.getMagnitude(view); //declared in vectory.cpp
 		float angle = view.getAngle(view, direction); //also in vectory.cpp
-		if (magnitude <= 20 && (angle < (30 * pi) / 180 && angle > -(30 * pi) / 180))	//this is the magic, if the player exists
+		if (magnitude <= 45 && (angle < (27 * pi) / 180 && angle > -(27 * pi) / 180))	//this is the magic, if the player exists
 		{																			//within a certain range of angles
 			key = false;															//that add up to a 60 degree FOV
 			return true;															//and about 20 (pixels probably?)
