@@ -13,7 +13,9 @@ using namespace spritelib;
 //Shader vertexShader, fragmentShader;
 //ShaderProgram shaderprogram;
 
-Sprite mainCharacter, guard1;
+std::vector<KeyHolder> guards;
+
+Sprite mainCharacter, guard1, backGround;
 
 Player player;
 float x = 300.0f, y = 50.0f;
@@ -28,7 +30,7 @@ World_Collision ground;
 float gx = 0.0f, gy = 0.0f, gw = 1280, gh = 50;
 
 bool jump = false, left = false, right = false;
-vec2 gravity(0.0f, -186.0f), velocity(0.0f, 0.0f), enemyVelocity(0.0f, 0.0f);
+vec2 gravity(0.0f, -98.0f), velocity(0.0f, 0.0f), enemyVelocity(0.0f, 0.0f);
 
 
 //keyboard function, set keys to do tasks
@@ -56,6 +58,14 @@ void KeyboardFunc(Window::Key a_key, Window::EventType a_eventType)
 				//later: add a bool to check if the player is on ground (only then can he jump) exclusion would be double jump
 				//^to do this the world collision class will be needed so we can check if a player is on any object coords/width of the world class
 			}
+		}
+		if (a_key == Window::Key::Q && !player.returnEMP())
+		{
+			player.useEMP(guards);
+		}
+		else if (a_key != Window::Key::Q)
+		{
+			player.setEMP();
 		}
 				
 	}
@@ -98,6 +108,14 @@ int main()
 	Window& game = Window::get_game_window();
 	game.init("Corrupt", 1280, 720)
 		.set_clear_color(0, 255, 255);
+	Text::load_font("assets/times.ttf", "TimesNewRoman");
+
+	//sf::Music lul;
+
+	//lul.openFromFile("assets/sound/mgs_encounter.wav");
+
+	backGround.load_sprite_image("assets/images/CorruptBackground.png")
+		.set_position(0, 0);
 
 	//create player sprite
 	mainCharacter.load_sprite_image("assets/images/RighteousThiefAnim.png")
@@ -105,6 +123,7 @@ int main()
 		.set_scale(80, 80)
 		.set_position(player.getX(), player.getY())
 		.set_center(0.5, 0.0); //SET X TO MIDDLE TO ALLOW SPRITE TO FLIP
+	//grab the rows of the spritesheet
 	for (int r = 0; r < 3; r++)
 		{
 			std::string pid = "anim_" + std::to_string(r);
@@ -119,8 +138,8 @@ int main()
 		.set_scale(80, 80)
 		.set_position(enemy1.getX(), enemy1.getY())
 		.set_center(0.5, 0.0); //SET X TO MIDDLE TO ALLOW SPRITE TO FLIP
-
-	for (int r = 0; r < 4; r++)
+	//grab the rows of the spritesheet
+	for (int r = 0; r < 8; r++)
 	{
 		unsigned int row = 128 * r;
 		guard1.push_frame_row("guardWalk", 0, row, 128, 0, 7);
@@ -140,11 +159,11 @@ int main()
 
 	//GAME LOOP, 30 FRAMES
 	//EVERYTHING UPDATES IN HERE
-	while (game.update(30))
+	while (game.update(60))
 	{
 		//get keyboard function per frame
 		game.set_keyboard_callback(KeyboardFunc);
-
+		guards.push_back(enemy1);
 		//draw a test "ground"
 		Shapes::set_color(1.0f, 0.0f, 1.0f);
 		Shapes::draw_rectangle(true, ground.getX(), ground.getY(), ground.getWidth(), ground.getHeight());
@@ -152,28 +171,42 @@ int main()
 		//draw the first platform
 		Shapes::draw_rectangle(true, platform1.getX(), platform1.getY(), platform1.getWidth(), platform1.getHeight());
 		
+		backGround.draw();
 		//update sprite(s) position per frame//////
 		mainCharacter.set_position(player.getX(), player.getY());
 		guard1.set_position(enemy1.getX(), enemy1.getY());
 		///////////////////////////////////////////
 		//draw sprite(s) per frame//////
 		mainCharacter.draw();
-		mainCharacter.next_frame();
+		mainCharacter.next_frame(); //update animation frames
 		guard1.draw();
-		guard1.next_frame();
+		guard1.next_frame(); //update animation frames
 		///////////////////////////////
 
 		//player movement info//////
 		if (left == true) //LEFT
 		{
-			velocity.x = -100.0f;
+			//right side of platform
+			if (checkCollide(x, y, 0, 70, platform1.getX() + 190, platform1.getY(), platform1.getWidth() - 180, platform1.getHeight() - 5))
+			{
+				velocity.x = 0;
+			}
+			
+			else
+				velocity.x = -100.0f;
 			mainCharacter.set_scale(-80, 80); //flip sprite
 			mainCharacter.set_animation("anim_1");
 		}
 		else
 			if (right == true) //RIGHT
 			{
-				velocity.x = 100.0f;
+				//left side of platform
+				if (checkCollide(x, y, 15, 70, platform1.getX(), platform1.getY() + 5, platform1.getWidth() - 180, platform1.getHeight() - 10))
+				{
+					velocity.x = 0;
+				}
+				else
+					velocity.x = 100.0f;
 				mainCharacter.set_scale(80, 80); //flip sprite
 				mainCharacter.set_animation("anim_1");
 			}
@@ -184,8 +217,8 @@ int main()
 				mainCharacter.set_animation("anim_2");
 			}
 
-		x += velocity.x * (1.0f / 30.0f); //the player's horizontal velocity updated per frame
-		y += velocity.y * (1.0f / 30.0f); //same as above but this time for vertical velocity
+		x += velocity.x * (1.0f / 60.0f); //the player's horizontal velocity updated per frame
+		y += velocity.y * (1.0f / 60.0f); //same as above but this time for vertical velocity
 		/////////////////////////////
 
 		//1st enemy pathing info//////
@@ -193,17 +226,19 @@ int main()
 		{
 			enemyVelocity.x = -100.0f; //LEFT
 			guard1.set_scale(-80, 80); //flip sprite
+			enemy1.setDirection(-1, 0);
 			//guard1.set_animation("guardWalk");
 		}
 		if (enemy1.getX() <= 900)
 		{
 			enemyVelocity.x = 100.0f; //RIGHT
 			guard1.set_scale(80, 80); //flip sprite
+			enemy1.setDirection(1, 0);
 			//guard1.set_animation("guardWalk");
 		}
 
-		ex += enemyVelocity.x * (1.0f / 30.0f); //the enemy's horizontal velocity updated per frame
-		ey += enemyVelocity.y * (1.0f / 30.0f); //same as above but this time for vertical velocity
+		ex += enemyVelocity.x * (1.0f / 60.0f); //the enemy's horizontal velocity updated per frame
+		ey += enemyVelocity.y * (1.0f / 60.0f); //same as above but this time for vertical velocity
 		///////////////////////
 
 		//COLLISION DETECTION IS PUT AFTER HERE///////
@@ -211,6 +246,7 @@ int main()
 		//to do: need to solve floating point precision errors so objects don't sink into one another
 
 		//1st platform collision//////
+		//SIDE OF PLATFORM COLLISION CHECK IN MOVEMENT FOR PLAYER
 		//top of platform
 		if (checkCollide(x, y, 0, 70, platform1.getX(), platform1.getY() + 10, platform1.getWidth(), platform1.getHeight() - 10))
 		{
@@ -221,11 +257,13 @@ int main()
 		else
 		{
 			jump = true;
-			gravity.y = -186.0f;
+			gravity.y = -98.0f;
 		}
+		
 		//bottom of platform
 		if (checkCollide(x, y, 0, 70, platform1.getX(), platform1.getY(), platform1.getWidth(), platform1.getHeight() - 5))
 		{
+			y -= 0.1;
 			velocity.y = 0;
 		}
 		//////////////////////////////
@@ -270,5 +308,12 @@ int main()
 		
 		//update first enemy position per frame
 		enemy1.setCoord(ex, ey);
+
+		if (enemy1.fieldOfView(player.getCoord()))
+		{
+			Text::set_color(1.0f, 0.0f, 0.0f);
+			Text::draw_string("!", "TimesNewRoman", 1200, 640, 3.0f);
+		}
+		std::cout << "EMP: " << player.getEMP() << std::endl;
 	}
 }
