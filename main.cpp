@@ -17,6 +17,11 @@ std::vector<KeyHolder> guards;
 
 Sprite mainCharacter, guard1, backGround;
 
+Sprite AdditiveSprite, MultSprite;
+
+std::vector<Sprite*> spritesAddToDraw;
+std::vector<Sprite*> spritesMultToDraw;
+
 Player player;
 float x = 300.0f, y = 50.0f;
 
@@ -107,6 +112,7 @@ int main()
 {
 	Window& game = Window::get_game_window();
 	game.init("Corrupt", 1280, 720)
+		//.set_screen_size(128, 72)
 		.set_clear_color(0, 255, 255);
 	Text::load_font("assets/times.ttf", "TimesNewRoman");
 
@@ -129,7 +135,7 @@ int main()
 			std::string pid = "anim_" + std::to_string(r);
 			unsigned int row = 128 * r;
 			mainCharacter.push_frame_row(pid , 0, row, 128, 0, 28);
-		}
+		}	
 	mainCharacter.set_animation("anim_2");
 
 	//create guard sprite
@@ -146,6 +152,15 @@ int main()
 	}
 	guard1.set_animation("guardWalk");
 
+	AdditiveSprite.load_sprite_image("assets/images/Flashlight.png")
+		.set_scale(200, 80)
+		.set_center(0.5f, 0.5f)
+		.set_position(enemy1.getX(), enemy1.getY());
+
+	/*MultSprite.load_sprite_image("assets/images/Flashlight.png")
+		.set_scale(128, 128)
+		.set_center(0.5f, 0.5f)
+		.set_position(600.0f, 216.0f);*/
 	//ground properties
 	ground.setCoord(gx, gy);
 	ground.setHeight(gh);
@@ -157,10 +172,25 @@ int main()
 	platform1.setWidth(pw);
 	//////////////////////////////////
 
-	//GAME LOOP, 30 FRAMES
+	//GAME LOOP, 60 FRAMES
 	//EVERYTHING UPDATES IN HERE
 	while (game.update(60))
 	{
+		//CAMERA SETTINGS/////////
+		float width = 1280.0f * 0.5f;
+		float height = 720.0f * 0.5f;
+		float cx = x - 200.0f, cy = y - 20.0f;
+		/////////////////////////
+
+		//CLAMP THE MAX AND MIN OF CAMERA COORDS////////
+		cx = std::max(0.0f, std::min(x - 200.0f, 1280.0f - width));
+		cy = std::max(0.0f, std::min(y - 20.0f, 720.0f - height));
+		////////////////////////////////////////////////
+
+		//NOW SET THE CAMERA/////////////////////
+		game.set_ortho_window(cx, cy, width, height);
+		////////////////////////////////////////
+
 		//get keyboard function per frame
 		game.set_keyboard_callback(KeyboardFunc);
 		guards.push_back(enemy1);
@@ -175,6 +205,7 @@ int main()
 		//update sprite(s) position per frame//////
 		mainCharacter.set_position(player.getX(), player.getY());
 		guard1.set_position(enemy1.getX(), enemy1.getY());
+		AdditiveSprite.set_position(enemy1.getX(), enemy1.getY());
 		///////////////////////////////////////////
 		//draw sprite(s) per frame//////
 		mainCharacter.draw();
@@ -191,9 +222,13 @@ int main()
 			{
 				velocity.x = 0;
 			}
+			else if (x < 5)
+			{
+				velocity.x = 0;
+			}
 			
 			else
-				velocity.x = -100.0f;
+				velocity.x = -150.0f;
 			mainCharacter.set_scale(-80, 80); //flip sprite
 			mainCharacter.set_animation("anim_1");
 		}
@@ -205,8 +240,12 @@ int main()
 				{
 					velocity.x = 0;
 				}
+				else if (x > 1275)
+				{
+					velocity.x = 0;
+				}
 				else
-					velocity.x = 100.0f;
+					velocity.x = 150.0f;
 				mainCharacter.set_scale(80, 80); //flip sprite
 				mainCharacter.set_animation("anim_1");
 			}
@@ -298,7 +337,7 @@ int main()
 		std::cout << "X: " << x << std::endl;
 		std::cout << "Gravity: " << gravity.y << std::endl;
 		std::cout << "Velocity: " << velocity.x << std::endl;
-	
+		std::cout << "EMP: " << player.getEMP() << std::endl;
 		//now this is important
 		//we actually have to update the player position per frame or nothing will happen unless we are hitting a key
 		//so simply just set the coord of the player using the x and y variables
@@ -309,11 +348,23 @@ int main()
 		//update first enemy position per frame
 		enemy1.setCoord(ex, ey);
 
+		//SHADER, USED FOR LIGHTING////////////
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		AdditiveSprite.draw();
+		/*glBlendFunc(GL_DST_COLOR, GL_ZERO);
+		MultSprite.draw();*/
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//MultSprite.set_position(sinf(Window::get_game_window().get_delta_time() * 0.1f) * 100.0f + 400.0f, 200.0f);
+		///////////////////////////////////////
+
+		//UI ELEMENTS//////////////////////////
+		game.set_ortho_window(0.0f, 0.0f, 1280.0f, 720.0f); //reset ortho matrix for UI elements
+
 		if (enemy1.fieldOfView(player.getCoord()))
 		{
 			Text::set_color(1.0f, 0.0f, 0.0f);
 			Text::draw_string("!", "TimesNewRoman", 1200, 640, 3.0f);
 		}
-		std::cout << "EMP: " << player.getEMP() << std::endl;
+		///////////////////////////////////////
 	}
 }
