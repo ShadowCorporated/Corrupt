@@ -154,8 +154,8 @@ int main()
 
 	AdditiveSprite.load_sprite_image("assets/images/Flashlight.png")
 		.set_scale(200, 80)
-		.set_center(0.5f, 0.5f)
-		.set_position(enemy1.getX(), enemy1.getY());
+		.set_center(1.0f, 0.0f)
+		.set_position(enemy1.getX() + 5, enemy1.getY() - 5);
 
 	/*MultSprite.load_sprite_image("assets/images/Flashlight.png")
 		.set_scale(128, 128)
@@ -205,11 +205,26 @@ int main()
 		//update sprite(s) position per frame//////
 		mainCharacter.set_position(player.getX(), player.getY());
 		guard1.set_position(enemy1.getX(), enemy1.getY());
-		AdditiveSprite.set_position(enemy1.getX(), enemy1.getY());
+		if (enemyVelocity.x < 0)
+		{
+			AdditiveSprite.set_position(enemy1.getX() - 8, enemy1.getY() - 10);
+		}
+		else
+		{
+			AdditiveSprite.set_position(enemy1.getX() + 8, enemy1.getY() - 10);
+		}
 		///////////////////////////////////////////
 		//draw sprite(s) per frame//////
 		mainCharacter.draw();
 		mainCharacter.next_frame(); //update animation frames
+		//SHADER, USED FOR LIGHTING////////////
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		AdditiveSprite.draw();
+		/*glBlendFunc(GL_DST_COLOR, GL_ZERO);
+		MultSprite.draw();*/
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//MultSprite.set_position(sinf(Window::get_game_window().get_delta_time() * 0.1f) * 100.0f + 400.0f, 200.0f);
+		///////////////////////////////////////
 		guard1.draw();
 		guard1.next_frame(); //update animation frames
 		///////////////////////////////
@@ -265,6 +280,7 @@ int main()
 		{
 			enemyVelocity.x = -100.0f; //LEFT
 			guard1.set_scale(-80, 80); //flip sprite
+			AdditiveSprite.set_scale(200, 80); //flip flashlight
 			enemy1.setDirection(-1, 0);
 			//guard1.set_animation("guardWalk");
 		}
@@ -272,6 +288,7 @@ int main()
 		{
 			enemyVelocity.x = 100.0f; //RIGHT
 			guard1.set_scale(80, 80); //flip sprite
+			AdditiveSprite.set_scale(-200, 80); //flip flashlight
 			enemy1.setDirection(1, 0);
 			//guard1.set_animation("guardWalk");
 		}
@@ -347,15 +364,6 @@ int main()
 		
 		//update first enemy position per frame
 		enemy1.setCoord(ex, ey);
-
-		//SHADER, USED FOR LIGHTING////////////
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		AdditiveSprite.draw();
-		/*glBlendFunc(GL_DST_COLOR, GL_ZERO);
-		MultSprite.draw();*/
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//MultSprite.set_position(sinf(Window::get_game_window().get_delta_time() * 0.1f) * 100.0f + 400.0f, 200.0f);
-		///////////////////////////////////////
 
 		//UI ELEMENTS//////////////////////////
 		game.set_ortho_window(0.0f, 0.0f, 1280.0f, 720.0f); //reset ortho matrix for UI elements
