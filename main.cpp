@@ -6,6 +6,7 @@
 #include <iostream>
 #include "Characters.h"
 #include "World Collision.h"
+#include <time.h>
 
 using namespace spritelib;
 
@@ -15,7 +16,7 @@ using namespace spritelib;
 
 std::vector<KeyHolder> guards;
 
-Sprite mainCharacter, guard1, backGround;
+Sprite mainCharacter, guard1, backGround, eye, health, EMPicon;
 
 Sprite AdditiveSprite, MultSprite;
 
@@ -34,9 +35,10 @@ float p1x = 400, p1y = 150, pw = 200, ph = 20;
 World_Collision ground;
 float gx = 0.0f, gy = 0.0f, gw = 1280, gh = 50;
 
-bool jump = false, left = false, right = false;
-vec2 gravity(0.0f, -98.0f), velocity(0.0f, 0.0f), enemyVelocity(0.0f, 0.0f);
+bool jump = false, left = false, right = false, spaceHeld = false;
+vec2 gravity(0.0f, -186.0f), velocity(0.0f, 0.0f), enemyVelocity(0.0f, 0.0f);
 
+int seconds = 0;
 
 //keyboard function, set keys to do tasks
 void KeyboardFunc(Window::Key a_key, Window::EventType a_eventType)
@@ -59,9 +61,10 @@ void KeyboardFunc(Window::Key a_key, Window::EventType a_eventType)
 		{
 			if (a_key == Window::Key::Space)
 			{
-				velocity.y = 250.0f; //give the player a jump velocity when space is pressed
+				//velocity.y = 250.0f; //give the player a jump velocity when space is pressed
 				//later: add a bool to check if the player is on ground (only then can he jump) exclusion would be double jump
 				//^to do this the world collision class will be needed so we can check if a player is on any object coords/width of the world class
+				spaceHeld = true;
 			}
 		}
 		if (a_key == Window::Key::Q && !player.returnEMP())
@@ -91,7 +94,7 @@ void KeyboardFunc(Window::Key a_key, Window::EventType a_eventType)
 
 		if (a_key == Window::Key::Space)
 		{
-			//nothing right now
+			spaceHeld = false;
 		}
 	}
 		break;
@@ -114,14 +117,36 @@ int main()
 	game.init("Corrupt", 1280, 720)
 		//.set_screen_size(128, 72)
 		.set_clear_color(0, 255, 255);
-	Text::load_font("assets/times.ttf", "TimesNewRoman");
+	Text::load_font("assets/FFFFORWA.TTF", "FFF");
 
 	//sf::Music lul;
 
 	//lul.openFromFile("assets/sound/mgs_encounter.wav");
 
+	//background textures
 	backGround.load_sprite_image("assets/images/CorruptBackground.png")
 		.set_position(0, 0);
+
+	//UI textures
+	eye.load_sprite_image("assets/images/EyeVisible.png")
+		.set_sprite_frame_size(1024, 1024, false)
+		.set_position(1100, 575)
+		.set_scale(200, 200)
+		.push_frame("eye", 0, 0)
+		.push_frame("eye", 0, 1024);
+	eye.set_animation("eye");
+
+	health.load_sprite_image("assets/images/Health UI.png")
+		.set_sprite_frame_size(256, 256, false)
+		.set_position(10, 600)
+		.set_scale(150, 150)
+		.push_frame_row("health", 0, 0, 256, 256, 4)
+		.set_animation("health");
+
+	EMPicon.load_sprite_image("assets/images/EMP.png")
+		.set_position(-10, 550)
+		.set_scale(100, 100);
+
 
 	//create player sprite
 	mainCharacter.load_sprite_image("assets/images/RighteousThiefAnim.png")
@@ -172,6 +197,8 @@ int main()
 	platform1.setWidth(pw);
 	//////////////////////////////////
 
+	guards.push_back(enemy1);
+
 	//GAME LOOP, 60 FRAMES
 	//EVERYTHING UPDATES IN HERE
 	while (game.update(60))
@@ -184,7 +211,7 @@ int main()
 
 		//CLAMP THE MAX AND MIN OF CAMERA COORDS////////
 		cx = std::max(0.0f, std::min(x - 200.0f, 1280.0f - width));
-		cy = std::max(0.0f, std::min(y - 20.0f, 720.0f - height));
+		cy = std::max(0.0f, std::min(y - 200.0f, 720.0f - height));
 		////////////////////////////////////////////////
 
 		//NOW SET THE CAMERA/////////////////////
@@ -193,7 +220,7 @@ int main()
 
 		//get keyboard function per frame
 		game.set_keyboard_callback(KeyboardFunc);
-		guards.push_back(enemy1);
+		//guards.push_back(enemy1); //<- move this out of while loop later
 		//draw a test "ground"
 		Shapes::set_color(1.0f, 0.0f, 1.0f);
 		Shapes::draw_rectangle(true, ground.getX(), ground.getY(), ground.getWidth(), ground.getHeight());
@@ -271,6 +298,20 @@ int main()
 				mainCharacter.set_animation("anim_2");
 			}
 
+		
+		if (spaceHeld == true)
+		{
+			if (seconds < 30)
+			{
+				velocity.y = 250.0f;
+				seconds += 1;
+			}	
+		}
+		else
+		{
+			seconds = 0;
+		}
+
 		x += velocity.x * (1.0f / 60.0f); //the player's horizontal velocity updated per frame
 		y += velocity.y * (1.0f / 60.0f); //same as above but this time for vertical velocity
 		/////////////////////////////
@@ -309,17 +350,22 @@ int main()
 			jump = false;
 			velocity.y = 0;
 			gravity.y = 0;
+			if (y < 170)
+			{
+				y = 170;
+			}
 		}
 		else
 		{
 			jump = true;
-			gravity.y = -98.0f;
+			gravity.y = -1000.0f;
 		}
 		
 		//bottom of platform
 		if (checkCollide(x, y, 0, 70, platform1.getX(), platform1.getY(), platform1.getWidth(), platform1.getHeight() - 5))
 		{
-			y -= 0.1;
+			spaceHeld = false;
+			y -= 0.3;
 			velocity.y = 0;
 		}
 		//////////////////////////////
@@ -330,6 +376,10 @@ int main()
 			jump = false;
 			velocity.y = 0; //the vertical velocity of the player is 0 if the player is on the "ground"
 							//essentially, the vertical velocity comes to an end
+			if(y < 50) //STOP PLAYER FROM SINKING IN GROUND
+			{
+				y = 50; //position correctiveness
+			}
 		}
 		else
 		{
@@ -368,11 +418,22 @@ int main()
 		//UI ELEMENTS//////////////////////////
 		game.set_ortho_window(0.0f, 0.0f, 1280.0f, 720.0f); //reset ortho matrix for UI elements
 
+		Text::set_color(1.0f, 1.0f, 1.0f);
+		eye.draw();
+		health.draw();
+		EMPicon.draw();
 		if (enemy1.fieldOfView(player.getCoord()))
 		{
-			Text::set_color(1.0f, 0.0f, 0.0f);
-			Text::draw_string("!", "TimesNewRoman", 1200, 640, 3.0f);
+			//text::draw_string("!", "TimesNewRoman", 1200, 640, 3.0f);
+			//Text::draw_string("Visible", "FFF", 1150, 690, 0.75f);
+			eye.set_frame(0);
+		}
+		else
+		{
+			//Text::draw_string("Hidden", "FFF", 1150, 690, 0.75f);
+			eye.set_frame(1);
 		}
 		///////////////////////////////////////
+
 	}
 }
