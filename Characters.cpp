@@ -17,26 +17,63 @@ KeyHolder::KeyHolder()
 	flashlight = true;
 }
 
-bool KeyHolder::fieldOfView(COORD2 player) //this is where the magic is
+bool KeyHolder::FOV(COORD2 a_player) //this is where the magic is
 {
 	if (flashlight == true) //while the flashlight is lit, then the enemy can spot the player
 	{
-		vec2 view(enemy.X - player.X, enemy.Y - player.Y);
+		vec2 view(enemy.X - a_player.X, enemy.Y - a_player.Y);
 		float magnitude = view.getMagnitude(view); //declared in vectory.cpp
 		float angle = view.getAngle(view, direction); //also in vectory.cpp
-		if (magnitude <= 45 && (angle < (27 * pi) / 180 && angle > -(27 * pi) / 180))	//this is the magic, if the player exists
-		{																			//within a certain range of angles
-			key = false;															//that add up to a 60 degree FOV
-			return true;															//and about 20 (pixels probably?)
-		}																			//also, the key is destroyed upon a keyholder seeing the player
-		else																		//If not, then the enemy has not seen the player
-		{																			//thus, nothing happens
-			return false;															//and these comments are useless
+		if (magnitude <= 210 && (angle < (27 * pi) / 180 && angle > -(27 * pi) / 180))	//this is the magic, if the player exists
+		{																				//within a certain range of angles
+			key = false;																//that add up to a 60 degree FOV
+			return true;																//and about 20 (pixels probably?)
+		}																				//also, the key is destroyed upon a keyholder seeing the player
+		else																			//If not, then the enemy has not seen the player
+		{																				//thus, nothing happens
+			return false;																//and these comments are useless
 		}
 	}
 	else
 	{
 		return false;																//Hello World!Press any key to continue...
+	}
+}
+
+bool Guard::FOV(COORD2 a_player) //this is where the magic is
+{
+	if (flashlight == true) //while the flashlight is lit, then the enemy can spot the player
+	{
+		vec2 view(enemy.X - a_player.X, enemy.Y - a_player.Y);
+		float magnitude = view.getMagnitude(view); //declared in vectory.cpp
+		float angle = view.getAngle(view, direction); //also in vectory.cpp
+		if (magnitude <= 200 && (angle < (27 * pi) 
+			/ 180 && angle > -(27 * pi) / 180))	//this is the magic, if the player exists
+		{										//within a certain range of angles
+			return true;						//that add up to a 54 degree FOV
+		}										//and about 200 pixels
+		else									//also, the key is destroyed upon a keyholder seeing the player
+		{										//If not, then the enemy has not seen the player
+			return false;						//thus, nothing happens
+		}										//and these comments are useless
+	}
+	else
+	{
+		return false;							//Hello World!Press any key to continue...
+	}
+}
+
+bool Player::FOV(COORD2 a_player)
+{
+	vec2 view(player.X - a_player.X, player.Y - a_player.Y);
+	float magnitude = view.getMagnitude(view); //declared in vectory.cpp
+	if (magnitude <= 40)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 
@@ -102,26 +139,33 @@ void Player::setCoord(float x, float y) //assigns the Coordinates of the player 
 	player.Y = y;
 }
 
-void Player::pickPocket(bool &enemykey) //allows the player to steal the key of the nearest enemy with a key
+void Player::pickPocket(KeyHolder &enemy) //allows the player to steal the key of the nearest enemy with a key
 {
-	if (enemykey == true)
+	if (FOV(enemy.getCoord()) == true)
 	{
-		key = true;
-		enemykey = false;
+		if (enemy.key == true)
+		{
+			key = true;
+			enemy.key = false;
+		}
+		else
+		{
+			return;
+		}
 	}
 	else
 	{
-
+		return;
 	}
 }
 
-void Player::useEMP(std::vector<KeyHolder> &guards)
+void Player::useEMP(std::vector<KeyHolder*> &guards)
 {
 	if (EMP > 0 && !EMPuse)
 	{
 		for (unsigned int i = 0; i < guards.size(); i++)
 		{
-			guards[i].flashlight = false;
+			guards[i]->flashlight = false;
 		}
 		EMPuse = true;
 		EMP--;

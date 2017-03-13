@@ -6,8 +6,10 @@
 #include "Electronics.h"
 #include <vector>
 
-struct Character
+class Character
 {
+public:
+	virtual bool FOV(COORD2 a_player) = 0;
 	bool flashlight; //guards equal true intil useEMP()
 	bool key; //if the player/enemy has a key = true
 };
@@ -17,7 +19,7 @@ class KeyHolder : public Character
 public:
 	KeyHolder(float x, float y);
 	KeyHolder();
-	bool fieldOfView(COORD2 player); //calculates if the player is within the enemies FOV
+	virtual bool FOV(COORD2 a_player) override; //calculates if the player is within the enemies FOV
 
 	void setCoord(float x, float y); //sets up the enemies' coordinates on the plane
 	COORD2 getCoord() const; //returns the enemy Coordinates
@@ -37,6 +39,7 @@ class Guard : public KeyHolder //for the FOV functionality, hell yeah!
 {
 public:
 	Guard(float x, float y); //different declaration of subtype of Keyholder. Guard.key = false
+	bool FOV(COORD2 a_player) override;
 	Guard();
 };
 
@@ -44,15 +47,17 @@ class Player : public Character
 {
 public:
 	Player();
-	void pickPocket(bool &enemykey); //allows the player to steal keys
+	void pickPocket(KeyHolder &enemy); //allows the player to steal keys
 	void openLock(bool &doorlock); //allows the player to unlock doors
 
 	void setEMP(bool = false);
 	bool returnEMP() const;
 
+	virtual bool FOV(COORD2 a_player) override;
+
 	void setCoord(float x, float y); //sets the player position on the map
 	void addEMP( SmallElectric &); //adds EMP's to the player inventory
-	void useEMP(std::vector<KeyHolder>&); //lets the player use EMPs to knock out enemy lights
+	void useEMP(std::vector<KeyHolder*>&); //lets the player use EMPs to knock out enemy lights
 	int getEMP();
 
 	COORD2 getCoord() const; //returns the coordinate of the player
