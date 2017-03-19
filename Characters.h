@@ -4,6 +4,7 @@
 #include "vectory.h"
 #include "Doors.h"
 #include "Electronics.h"
+#include "Hiding.h"
 #include <vector>
 
 class Character
@@ -65,9 +66,14 @@ public:
 	float getX() const; //returns the x value of the player coordinate
 	float getY() const; //returns the y value of the player coordinate
 
+	bool getHiding() const;
+	void setHiding(bool = false);
+	void Hide(std::vector<HidingSpot*> spots);
+
 	~Player(); //destroys the player
 private:
 	int EMP; //contains the number of EMP's the player is holding
 	bool EMPuse;
+	bool hiding;
 	COORD2 player; //contain's the player coordinates
 };

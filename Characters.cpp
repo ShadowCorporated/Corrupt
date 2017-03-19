@@ -65,16 +65,21 @@ bool Guard::FOV(COORD2 a_player) //this is where the magic is
 
 bool Player::FOV(COORD2 a_player)
 {
-	vec2 view(player.X - a_player.X, player.Y - a_player.Y);
-	float magnitude = view.getMagnitude(view); //declared in vectory.cpp
-	if (magnitude <= 40)
+	if (flashlight == true)
 	{
-		return true;
+		vec2 view(player.X - a_player.X, player.Y - a_player.Y);
+		float magnitude = view.getMagnitude(view); //declared in vectory.cpp
+		if (magnitude <= 40)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	else
-	{
 		return false;
-	}
 }
 
 void KeyHolder::setCoord(float x, float y) //sets up the enemy's location based on the system's input
@@ -225,4 +230,35 @@ float Player::getX() const //returns only the X value of the player's location
 float Player::getY() const //returns only the Y value of the location, for the reasons listed above
 {						 //trust
 	return player.Y;
+}
+
+bool Player::getHiding() const
+{
+	return hiding;
+}
+
+void Player::setHiding(bool hide)
+{
+	hiding = hide;
+}
+
+void Player::Hide(std::vector<HidingSpot*> spots)
+{
+	for (int i = 0; i < spots.size(); i++)
+	{
+		vec2 distance(player.X - spots[i]->getX(),
+			player.Y - spots[i]->getY());
+		float magnitude = distance.getMagnitude(distance);
+		if (magnitude < 50)
+		{
+			hiding = true;
+			player = spots[i]->getCOORD();
+			break;
+		}
+		else
+		{
+			hiding = false;
+			//make an incredible amount of stuff happen in the UI
+		}
+	}
 }
