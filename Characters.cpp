@@ -9,12 +9,14 @@ KeyHolder::KeyHolder(float x, float y)
 	flashlight = true; //sets keyholder flashlight to true
 	key = true; //sets the keyholder guard's key stat to true
 	setCoord(x, y); //sets keyholder location
+	carrier = true;
 }
 
 KeyHolder::KeyHolder()
 {
 	key = true; //sets default keyholder to 
 	flashlight = true;
+	carrier = true;
 }
 
 bool KeyHolder::FOV(COORD2 a_player) //this is where the magic is
@@ -22,7 +24,7 @@ bool KeyHolder::FOV(COORD2 a_player) //this is where the magic is
 	if (flashlight == true) //while the flashlight is lit, then the enemy can spot the player
 	{
 		vec2 view(enemy.X - a_player.X, enemy.Y - a_player.Y);
-		float magnitude = view.getMagnitude(view); //declared in vectory.cpp
+		float magnitude = view.getMagnitude(); //declared in vectory.cpp
 		float angle = view.getAngle(view, direction); //also in vectory.cpp
 		if (magnitude <= 210 && (angle < (27 * pi) / 180 && angle > -(27 * pi) / 180))	//this is the magic, if the player exists
 		{																				//within a certain range of angles
@@ -45,7 +47,7 @@ bool Guard::FOV(COORD2 a_player) //this is where the magic is
 	if (flashlight == true) //while the flashlight is lit, then the enemy can spot the player
 	{
 		vec2 view(enemy.X - a_player.X, enemy.Y - a_player.Y);
-		float magnitude = view.getMagnitude(view); //declared in vectory.cpp
+		float magnitude = view.getMagnitude(); //declared in vectory.cpp
 		float angle = view.getAngle(view, direction); //also in vectory.cpp
 		if (magnitude <= 200 && (angle < (27 * pi) 
 			/ 180 && angle > -(27 * pi) / 180))	//this is the magic, if the player exists
@@ -68,7 +70,7 @@ bool Player::FOV(COORD2 a_player)
 	if (flashlight == true)
 	{
 		vec2 view(player.X - a_player.X, player.Y - a_player.Y);
-		float magnitude = view.getMagnitude(view); //declared in vectory.cpp
+		float magnitude = view.getMagnitude(); //declared in vectory.cpp
 		if (magnitude <= 40)
 		{
 			return true;
@@ -117,6 +119,7 @@ Guard::Guard()
 {
 	flashlight = true;
 	key = false;
+	carrier = false;
 }
 
 Guard::Guard(float x, float y)
@@ -124,6 +127,7 @@ Guard::Guard(float x, float y)
 	flashlight = true;
 	key = false;
 	setCoord(x, y);
+	carrier = false;
 }
 
 Player::Player() //the player will never have a true flashlight, but could have a true key, depending on stealthiness
@@ -131,6 +135,7 @@ Player::Player() //the player will never have a true flashlight, but could have 
 	key = false;
 	flashlight = false;
 	EMP = 1;
+	carrier = false;
 }
 
 Player::~Player()
@@ -242,13 +247,13 @@ void Player::setHiding(bool hide)
 	hiding = hide;
 }
 
-void Player::Hide(std::vector<HidingSpot*> spots)
+void Player::Hide(std::vector<HidingSpot*> &spots)
 {
 	for (int i = 0; i < spots.size(); i++)
 	{
 		vec2 distance(player.X - spots[i]->getX(),
 			player.Y - spots[i]->getY());
-		float magnitude = distance.getMagnitude(distance);
+		float magnitude = distance.getMagnitude();
 		if (magnitude < 50)
 		{
 			hiding = true;

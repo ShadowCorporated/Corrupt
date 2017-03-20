@@ -4,7 +4,7 @@
 #include <streambuf>
 #include <vector>
 #include <iostream>
-#include "CharacterSystem/Characters.h"
+#include "Characters.h"
 #include "World Collision.h"
 #include <time.h>
 
@@ -233,13 +233,19 @@ int main()
 		//update sprite(s) position per frame//////
 		mainCharacter.set_position(player.getX(), player.getY());
 		guard1.set_position(enemy1.getX(), enemy1.getY());
-		if (enemyVelocity.x < 0)
+		for (int i = 0; i < guards.size(); i++)
 		{
-			AdditiveSprite.set_position(enemy1.getX() - 8, enemy1.getY() - 10);
-		}
-		else
-		{
-			AdditiveSprite.set_position(enemy1.getX() + 8, enemy1.getY() - 10);
+			if (guards[i]->flashlight == true)
+			{
+				if (enemyVelocity.x < 0)
+				{
+					AdditiveSprite.set_position(enemy1.getX() - 8, enemy1.getY() - 10);
+				}
+				else
+				{
+					AdditiveSprite.set_position(enemy1.getX() + 8, enemy1.getY() - 10);
+				}
+			}
 		}
 		///////////////////////////////////////////
 		//draw sprite(s) per frame//////
@@ -247,7 +253,14 @@ int main()
 		mainCharacter.next_frame(); //update animation frames
 		//SHADER, USED FOR LIGHTING////////////
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		AdditiveSprite.draw();
+
+		for (int i = 0; i < guards.size(); i++)
+		{
+			if (guards[i]->flashlight == true)
+			{
+				AdditiveSprite.draw();
+			}
+		}
 		/*glBlendFunc(GL_DST_COLOR, GL_ZERO);
 		MultSprite.draw();*/
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

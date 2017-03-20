@@ -12,11 +12,11 @@ vec2::vec2()
 
 }
 
-float vec2::getMagnitude(vec2 vector)
+float vec2::getMagnitude() const
 {
-	vector.x *= vector.x;
-	vector.y *= vector.y;
-	float calc = vector.x + vector.y;
+	float X = x * x;
+	float Y = y * y;
+	float calc = X + Y;
 	calc = sqrt(calc);
 	return calc;
 }
@@ -24,8 +24,8 @@ float vec2::getMagnitude(vec2 vector)
 float vec2::getAngle(vec2 vector, vec2 direction)
 {
 	float dotproduct = (vector.x * direction.x) + (vector.y * direction.y);
-	float mag1 = vector.getMagnitude(vector);
-	float mag2 = direction.getMagnitude(direction);
+	float mag1 = vector.getMagnitude();
+	float mag2 = direction.getMagnitude();
 	float angle = acos(dotproduct / (mag1 * mag2));
 	return angle;
 }

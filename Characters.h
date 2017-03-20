@@ -13,6 +13,7 @@ public:
 	virtual bool FOV(COORD2 a_player) = 0;
 	bool flashlight; //guards equal true intil useEMP()
 	bool key; //if the player/enemy has a key = true
+	bool carrier;
 };
 
 class KeyHolder : public Character
@@ -68,7 +69,7 @@ public:
 
 	bool getHiding() const;
 	void setHiding(bool = false);
-	void Hide(std::vector<HidingSpot*> spots);
+	void Hide(std::vector<HidingSpot*> &spots);
 
 	~Player(); //destroys the player
 private:
