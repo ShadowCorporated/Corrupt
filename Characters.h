@@ -14,6 +14,7 @@ public:
 	bool flashlight; //guards equal true intil useEMP()
 	bool key; //if the player/enemy has a key = true
 	bool carrier;
+	bool weapon;
 };
 
 class KeyHolder : public Character
@@ -43,6 +44,14 @@ public:
 	Guard(float x, float y); //different declaration of subtype of Keyholder. Guard.key = false
 	bool FOV(COORD2 a_player) override;
 	Guard();
+};
+
+class Spotlight : public KeyHolder
+{
+public:
+	Spotlight(float x, float y);
+	bool FOV(COORD2 a_player);
+	Spotlight();
 };
 
 class Player : public Character
