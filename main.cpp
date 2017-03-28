@@ -14,9 +14,15 @@ using namespace spritelib;
 //Shader vertexShader, fragmentShader;
 //ShaderProgram shaderprogram;
 
+enum animation {
+	EMP, PICKPOCKET, NOTHING
+};
+
+animation playeranim = NOTHING;
+
 std::vector<KeyHolder*> guards;
 
-Sprite mainCharacter, guard1, backGround, level, eye, health, EMPicon, useEMP, spotlight;
+Sprite mainCharacter, guard1, backGround, level, levelTwo, eye, health, EMPicon, Chest, EMPterminal, useEMP, spotlight;
 
 Sprite AdditiveSprite, MultSprite;
 
@@ -26,38 +32,45 @@ std::vector<Sprite*> spritesMultToDraw;
 int lives = 3;
 
 Player player;
-float x = 120.0f, y = 471.0f, h = 30, w = 0;
+float x = 120.0f, y = 300.0f, h = 30, w = 0;
 
-Guard enemy1, spotLight1;
+Guard enemy1;
 float ex = 750, ey = 107;
+Spotlight spotLight1;
 float sx = 293, sy = 434;
 
+SmallElectric terminal1;
+float tx = 290, ty = 276.3;
 
-World_Collision wall0, wall1, wall2, platform1, platform2, platform3, platform4, platform5, platform6, platform7;
-float w0x = 0, w0y = 0, w0w = 90, w0h = 1280;
-float w1x = 558, w1y = 172, w1w = 40, w1h = 200;
-float w2x = 888, w2y = 172, w2w = 40, w2h = 200;
-float p1x = 80, p1y = 0, pw = 90, ph = 471;
-float p2x = 160, p2y = 0, p2w = 200, p2h = 366;
-float p3x = 360, p3y = 0, p3w = 75, p3h = 472.5;
-float p4x = 480, p4y = 0, p4w = 28, p4h = 502.5;
-float p5x = 558, p5y = 235, p5w = 370, p5h = 1000;
-float p6x = 558, p6y = 0, p6w = 370, p6h = 107;
-float p7x = 650, p7y = 150.5, p7w = 200, p7h = 20;
+bool level1 = false;
+bool level2 = true;
+
+bool open = false;
+
+World_Collision wall0, wall1, wall2, platform1, platform2, platform3, platform4, platform5, platform6, platform7, platform8;
+float w0x, w0y, w0w, w0h;
+float w1x, w1y, w1w, w1h;
+float w2x, w2y, w2w, w2h;
+float p1x, p1y, pw, ph;
+float p2x, p2y, p2w, p2h;
+float p3x, p3y, p3w, p3h;
+float p4x, p4y, p4w, p4h;
+float p5x, p5y, p5w, p5h;
+float p6x, p6y, p6w, p6h;
+float p7x, p7y, p7w, p7h; 
+float p8x, p8y, p8w, p8h;
 
 World_Collision ledge1, ledge2, ledge3, ledge4, ledge5, ledge6;
-float l1x = 345, l1y = 410, l1w = 20, l1h = 17.5;
-float l2x = 465, l2y = 460, l2w = 20, l2h = 12.5;
-float l3x = 540, l3y = 468, l3w = 20, l3h = 10;
-float l4x = 505, l4y = 391, l4w = 25, l4h = 10;
-float l5x = 540, l5y = 283, l5w = 20, l5h = 10;
-float l6x = 505, l6y = 113.5, l6w = 25, l6h = 10;
+float l1x, l1y, l1w, l1h;
+float l2x, l2y, l2w, l2h;
+float l3x, l3y, l3w, l3h;
+float l4x, l4y, l4w, l4h;
+float l5x, l5y, l5w, l5h;
+float l6x, l6y, l6w, l6h;
 
-World_Collision ground;
-float gx = 0.0f, gy = 0.0f, gw = 1280, gh = 50;
-
-bool jump = false, left = false, right = false, spaceHeld = false, EMP = false;
+bool jump = false, left = false, right = false, spaceHeld = false;
 bool spotted = false, dead = false;
+
 vec2 gravity(0.0f, -186.0f), velocity(0.0f, 0.0f), enemyVelocity(0.0f, 0.0f);
 
 int seconds = 0, deathSeconds = 0, shootSeconds = 0;
@@ -92,12 +105,12 @@ void KeyboardFunc(Window::Key a_key, Window::EventType a_eventType)
 		}
 		if (a_key == Window::Key::Q && !player.returnEMP())
 		{
-			EMP = true;
-			player.useEMP(guards);
-		}
-		else if (a_key != Window::Key::Q)
-		{
-			player.setEMP();
+			if (player.getEMP() > 0)
+			{
+				playeranim = EMP;
+				useEMP.set_frame(0);
+			}
+			
 		}
 		if (a_key == Window::Key::Return)
 		{
@@ -112,6 +125,20 @@ void KeyboardFunc(Window::Key a_key, Window::EventType a_eventType)
 				dead = true;
 				mainCharacter.set_scale(40, 40);
 			}
+		}
+		/*if (a_key == Window::Key::O)
+		{
+			level1 = true;
+			level2 = false;
+		}
+		if (a_key == Window::Key::P)
+		{
+			level1 = false;
+			level2 = true;
+		}*/
+		if (a_key == Window::Key::L)
+		{
+			open = true;
 		}
 				
 	}
@@ -132,7 +159,7 @@ void KeyboardFunc(Window::Key a_key, Window::EventType a_eventType)
 
 		if (a_key == Window::Key::Q)
 		{
-			EMP = false;
+			player.setEMP();
 		}
 
 		if (a_key == Window::Key::Space)
@@ -161,95 +188,113 @@ void Movement()
 	{
 		if (left == true) //LEFT
 		{
-			//right side of platforms
-			if (checkCollide(x, y, w, h, wall0.getX(), wall0.getY(), wall0.getWidth(), wall0.getHeight())) //first wall
+			if (level1)
 			{
-				velocity.x = 0;
+				//right side of platforms
+				if (checkCollide(x, y, w, h, wall0.getX(), wall0.getY(), wall0.getWidth(), wall0.getHeight())) //first wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w, h, wall1.getX(), wall1.getY(), wall1.getWidth() + 5, wall1.getHeight())) //first wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w, h, wall2.getX(), wall2.getY(), wall2.getWidth() + 5, wall2.getHeight())) //second wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w, h, platform1.getX(), platform1.getY(), platform1.getWidth() + 10, platform1.getHeight() - 5)) //second wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w, h, platform3.getX(), platform3.getY(), platform3.getWidth() + 10, platform3.getHeight() - 5)) //third wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w, h, platform4.getX(), platform4.getY(), platform4.getWidth() + 3, platform4.getHeight() - 5)) //fourth wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w, h, platform7.getX(), platform7.getY(), platform7.getWidth() + 10, platform7.getHeight() - 5)) //seventh wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w, h, ledge4.getX(), ledge4.getY(), ledge4.getWidth() + 10, ledge4.getHeight() - 5)) //third wall
+				{
+					velocity.x = 0;
+				}
+				else
+					velocity.x = -100.0f;
+				mainCharacter.set_scale(-40, 40); //flip sprite
+				mainCharacter.set_animation("anim_2");
 			}
-			else if (checkCollide(x, y, w, h, wall1.getX(), wall1.getY(), wall1.getWidth() + 5, wall1.getHeight())) //first wall
+			if (level2)
 			{
-				velocity.x = 0;
+				velocity.x = -80.0f;
+				mainCharacter.set_scale(-20, 20); //flip sprite
+				mainCharacter.set_animation("anim_2");
 			}
-			else if (checkCollide(x, y, w, h, wall2.getX(), wall2.getY(), wall2.getWidth() + 5, wall2.getHeight())) //second wall
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w, h, platform1.getX(), platform1.getY(), platform1.getWidth() + 10, platform1.getHeight() - 5)) //second wall
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w, h, platform3.getX(), platform3.getY(), platform3.getWidth() + 10, platform3.getHeight() - 5)) //third wall
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w, h, platform4.getX(), platform4.getY(), platform4.getWidth() + 3, platform4.getHeight() - 5)) //fourth wall
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w, h, platform7.getX(), platform7.getY(), platform7.getWidth() + 10, platform7.getHeight() - 5)) //seventh wall
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w, h, ledge4.getX(), ledge4.getY(), ledge4.getWidth() + 10, ledge4.getHeight() - 5)) //third wall
-			{
-				velocity.x = 0;
-			}
-			else
-				velocity.x = -100.0f;
-			mainCharacter.set_scale(-40, 40); //flip sprite
-			mainCharacter.set_animation("anim_2");
 		}
 		else if (right == true) //RIGHT
 		{
-			//left side of platforms
-			if (checkCollide(x, y, w + 5, h, platform3.getX(), platform3.getY(), platform3.getWidth(), platform3.getHeight() - 5)) //third wall
+			if (level1)
 			{
-				velocity.x = 0;
+				//left side of platforms
+				if (checkCollide(x, y, w + 5, h, platform3.getX(), platform3.getY(), platform3.getWidth(), platform3.getHeight() - 5)) //third wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w + 5, h, platform4.getX(), platform4.getY(), platform4.getWidth(), platform4.getHeight() - 5)) //fourth wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w + 5, h, platform5.getX(), platform5.getY(), platform5.getWidth(), platform5.getHeight() - 5)) //fifth wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w + 5, h, wall1.getX(), wall1.getY(), wall1.getWidth(), wall1.getHeight() - 5)) //fifth wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w + 5, h, wall2.getX(), wall2.getY(), wall2.getWidth(), wall2.getHeight() - 5)) //fifth wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w + 5, h, platform6.getX(), platform6.getY(), platform6.getWidth(), platform6.getHeight() - 5)) //sixth wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w + 5, h, platform7.getX(), platform7.getY(), platform7.getWidth(), platform7.getHeight() - 5)) //seventh wall
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w + 5, h, ledge1.getX(), ledge1.getY(), ledge1.getWidth(), ledge1.getHeight() - 5)) //first ledge
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w + 5, h, ledge2.getX(), ledge2.getY(), ledge2.getWidth(), ledge2.getHeight() - 5)) //second ledge
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w + 5, h, ledge3.getX(), ledge3.getY(), ledge3.getWidth(), ledge3.getHeight() - 5)) //third ledge
+				{
+					velocity.x = 0;
+				}
+				else if (checkCollide(x, y, w + 5, h, ledge5.getX(), ledge5.getY(), ledge5.getWidth(), ledge5.getHeight() - 5)) //fifth ledge
+				{
+					velocity.x = 0;
+				}
+				else
+					velocity.x = 100.0f;
+				mainCharacter.set_scale(40, 40); //flip sprite
+				mainCharacter.set_animation("anim_2");
 			}
-			else if (checkCollide(x, y, w + 5, h, platform4.getX(), platform4.getY(), platform4.getWidth(), platform4.getHeight() - 5)) //fourth wall
+			if (level2)
 			{
-				velocity.x = 0;
+				velocity.x = 80.0f;
+				mainCharacter.set_scale(20, 20); //flip sprite
+				mainCharacter.set_animation("anim_2");
 			}
-			else if (checkCollide(x, y, w + 5, h, platform5.getX(), platform5.getY(), platform5.getWidth(), platform5.getHeight() - 5)) //fifth wall
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w + 5, h, wall1.getX(), wall1.getY(), wall1.getWidth(), wall1.getHeight() - 5)) //fifth wall
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w + 5, h, wall2.getX(), wall2.getY(), wall2.getWidth(), wall2.getHeight() - 5)) //fifth wall
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w + 5, h, platform6.getX(), platform6.getY(), platform6.getWidth(), platform6.getHeight() - 5)) //sixth wall
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w + 5, h, platform7.getX(), platform7.getY(), platform7.getWidth(), platform7.getHeight() - 5)) //seventh wall
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w + 5, h, ledge1.getX(), ledge1.getY(), ledge1.getWidth(), ledge1.getHeight() - 5)) //first ledge
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w + 5, h, ledge2.getX(), ledge2.getY(), ledge2.getWidth(), ledge2.getHeight() - 5)) //second ledge
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w + 5, h, ledge3.getX(), ledge3.getY(), ledge3.getWidth(), ledge3.getHeight() - 5)) //third ledge
-			{
-				velocity.x = 0;
-			}
-			else if (checkCollide(x, y, w + 5, h, ledge5.getX(), ledge5.getY(), ledge5.getWidth(), ledge5.getHeight() - 5)) //fifth ledge
-			{
-				velocity.x = 0;
-			}
-			else
-				velocity.x = 100.0f;
-			mainCharacter.set_scale(40, 40); //flip sprite
-			mainCharacter.set_animation("anim_2");
 		}
 
 		else //not moving
@@ -263,7 +308,7 @@ void Movement()
 		{
 			if (seconds < 15)
 			{
-				velocity.y = 250.0f;
+				velocity.y = 200.0f;
 				seconds += 1;
 			}
 		}
@@ -282,11 +327,7 @@ void Movement()
 
 void SetupCollisionProperties()
 {
-	//ground properties
-	ground.setCoord(gx, gy);
-	ground.setHeight(gh);
-	ground.setWidth(gw);
-
+	//create wall properties/////
 	wall0.setCoord(w0x, w0y);
 	wall0.setHeight(w0h);
 	wall0.setWidth(w0w);
@@ -327,6 +368,10 @@ void SetupCollisionProperties()
 	platform7.setCoord(p7x, p7y);
 	platform7.setHeight(p7h);
 	platform7.setWidth(p7w);
+
+	platform8.setCoord(p8x, p8y);
+	platform8.setHeight(p8h);
+	platform8.setWidth(p8w);
 	//////////////////////////////////
 
 	//create ledge properties/////////
@@ -357,6 +402,26 @@ void SetupCollisionProperties()
 
 void bottomTopCollision()
 {
+	//platforms
+	w0x = 0, w0y = 0, w0w = 90, w0h = 1280;
+	w1x = 558, w1y = 172, w1w = 40, w1h = 200;
+	w2x = 888, w2y = 172, w2w = 40, w2h = 200;
+	p1x = 80, p1y = 0, pw = 90, ph = 471;
+	p2x = 160, p2y = 0, p2w = 200, p2h = 366;
+	p3x = 360, p3y = 0, p3w = 75, p3h = 472.5;
+	p4x = 480, p4y = 0, p4w = 28, p4h = 502.5;
+	p5x = 558, p5y = 235, p5w = 370, p5h = 1000;
+	p6x = 558, p6y = 0, p6w = 370, p6h = 107;
+	p7x = 650, p7y = 150.5, p7w = 200, p7h = 20;
+	p8x = 965, p8y = 0, p8w = 70, p8h = 530;
+
+	//ledges
+	l1x = 345, l1y = 410, l1w = 20, l1h = 17.5;
+	l2x = 465, l2y = 460, l2w = 20, l2h = 12.5;
+	l3x = 540, l3y = 468, l3w = 20, l3h = 10;
+	l4x = 505, l4y = 391, l4w = 25, l4h = 10;
+	l5x = 540, l5y = 283, l5w = 20, l5h = 10;
+	l6x = 505, l6y = 113.5, l6w = 25, l6h = 10;
 	///////////////////////
 
 	//COLLISION DETECTION IS PUT AFTER HERE///////
@@ -404,6 +469,16 @@ void bottomTopCollision()
 		if (y < 502.5)
 		{
 			y = 502.5;
+		}
+	}
+	else if (checkCollide(x, y, w, h, platform5.getX(), platform5.getY(), platform5.getWidth(), platform5.getHeight()))
+	{
+		jump = false;
+		velocity.y = 0;
+		gravity.y = 0;
+		if (y < 600)
+		{
+			y = 600;
 		}
 	}
 	else if (checkCollide(x, y, w, h, platform6.getX(), platform6.getY(), platform6.getWidth(), platform6.getHeight()))
@@ -486,6 +561,16 @@ void bottomTopCollision()
 			y = 170.5;
 		}
 	}
+	else if (checkCollide(x, y, w, h, platform8.getX(), platform8.getY() + 5, platform8.getWidth(), platform8.getHeight() - 5))
+	{
+		jump = false;
+		velocity.y = 0;
+		gravity.y = 0;
+		if (y < 527)
+		{
+			y = 527;
+		}
+	}
 	else
 	{
 		jump = true;
@@ -546,7 +631,7 @@ void bottomTopCollision()
 	else
 	{*/
 	//jump = true; //THIS WAS MAKING IT SO YOU COULDN'T JUMP ON PLATFORM, SO AVOID THIS
-	velocity.y += gravity.y * (1.0f / 30.0f); //this equation effects the y coord of the player
+	velocity.y += gravity.y * (1.0f / 60.0f); //this equation effects the y coord of the player
 											  //the velocity of the jump is effected by the gravity and updated per frame
 											  //gives the jump a much smoother effect
 											  //like a PARABOLA :D
@@ -564,10 +649,74 @@ void bottomTopCollision()
 
 }
 
+void bottomTopCollision2()
+{
+	p1x = 0, p1y = 0, pw = 305, ph = 276;
+	p2x = 356, p2y = 0, p2w = 1000, p2h = 290;
+	sx = 451, sy = 325;
+	spotlight.set_scale(36, 30);
+	spotlight.set_center(1.0f, -0.5f);
+
+	platform1.setCoord(p1x, p1y);
+	platform1.setHeight(ph);
+	platform1.setWidth(pw);
+
+	platform2.setCoord(p2x, p2y);
+	platform2.setHeight(p2h);
+	platform2.setWidth(p2w);
+	
+
+	if (checkCollide(x, y, w, h, platform1.getX(), platform1.getY(), platform1.getWidth(), platform1.getHeight()))
+	{
+		jump = false;
+		velocity.y = 0;
+		gravity.y = 0;
+		if (y < 276)
+		{
+			y = 276;
+		}
+	}
+	else if (checkCollide(x, y, w, h, platform2.getX(), platform2.getY(), platform2.getWidth(), platform2.getHeight()))
+	{
+		jump = false;
+		velocity.y = 0;
+		gravity.y = 0;
+		if (y < 290)
+		{
+			y = 290;
+		}
+	}
+	else
+	{
+		jump = true;
+		gravity.y = -1000.0f;
+	}
+
+	velocity.y += gravity.y * (1.0f / 60.0f);
+
+	if (y < -250)
+	{
+		y = 472;
+		x = 120;
+		//lives =  lives - 1;
+		dead = true;
+		mainCharacter.set_scale(40, 40);
+	}
+
+}
+
 void drawUpdate()
 {
 	backGround.draw();
-	level.draw();
+	if (level1)
+		level.draw();
+	if (level2)
+	{
+		levelTwo.draw();
+	}
+	EMPterminal.set_frame(0);
+	EMPterminal.set_position(terminal1.getX(), terminal1.getY());
+	EMPterminal.draw();
 	//update sprite(s) position per frame//////
 	mainCharacter.set_position(player.getX(), player.getY());
 	guard1.set_position(enemy1.getX(), enemy1.getY());
@@ -582,17 +731,29 @@ void drawUpdate()
 	}
 	///////////////////////////////////////////
 	//draw sprite(s) per frame//////
-	if (EMP == false)
+	switch (playeranim)
 	{
+	case NOTHING:
 		mainCharacter.draw();
 		mainCharacter.next_frame(); //update animation frames
-		useEMP.set_frame(0);
-	}
-	if (EMP == true)
-	{
+		break;
+	case EMP:
+		useEMP.set_animation("throw");
 		useEMP.draw();
-		useEMP.next_frame();
+		if (useEMP.get_curr_frame() == 25)
+		{
+			player.useEMP(guards);
+		}
+		if (useEMP.get_curr_frame() >= 34)
+		{
+			playeranim = NOTHING;
+		}
+		else
+		{
+			useEMP.next_frame();
+		}
 	}
+		
 	//SHADER, USED FOR LIGHTING////////////
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	spotlight.set_position(spotLight1.getX() + 10, spotLight1.getY());
@@ -611,6 +772,23 @@ void drawUpdate()
 	guard1.next_frame(); //update animation frames
 						 ///////////////////////////////
 
+	//Chest.draw();
+	//Chest.set_animation("open");
+
+	if (open == false)
+	{
+		Chest.set_frame(0);
+	}
+	else if (open == true)
+	{
+		if (Chest.get_curr_frame() < 78)
+			Chest.next_frame();
+		else
+		{
+			Chest.set_frame(79);
+		}
+	}
+
 }
 
 void loadSprites()
@@ -622,6 +800,10 @@ void loadSprites()
 	level.load_sprite_image("assets/images/level design 1.png")
 		.set_position(0, 0)
 		.set_scale(1280, 900);
+
+	levelTwo.load_sprite_image("assets/images/Level_1-1.png")
+		.set_position(0, 0)
+		.set_scale(1280, 720);
 
 	//UI textures
 	eye.load_sprite_image("assets/images/EyeVisible.png")
@@ -646,11 +828,31 @@ void loadSprites()
 		.set_position(-10, 550)
 		.set_scale(100, 100);
 
+	//chest
+	Chest.load_sprite_image("assets/images/Opening Chest.png")
+		.set_sprite_frame_size(128, 128, false)
+		.set_position(910, 282.4f)
+		.set_scale(30, 30);
 
+	for (int r = 7; r > -1; r--)
+	{
+		unsigned int row = 128 * r;
+		Chest.push_frame_row("open", 0, row, 128, 0, 10);
+	}
+
+	//terminal sprites
+	EMPterminal.load_sprite_image("assets/images/terminal.png")
+		.set_sprite_frame_size(32, 32)
+		.set_scale(15, 15)
+		.push_frame("terminal", 0, 32)
+		.push_frame("terminal", 0, 0)
+		.set_animation("terminal")
+		.set_position(terminal1.getX(), terminal1.getY());
+		
 	//create player sprite
 	mainCharacter.load_sprite_image("assets/images/RighteousThiefAnim.png")
 		.set_sprite_frame_size(96, 96, false)
-		.set_scale(40, 40)
+		.set_scale(20, 20)
 		.set_position(player.getX(), player.getY())
 		.set_center(0.5, 0.0); //SET X TO MIDDLE TO ALLOW SPRITE TO FLIP
 							   //grab the rows of the spritesheet
@@ -666,10 +868,10 @@ void loadSprites()
 
 	useEMP.load_sprite_image("assets/images/EMP throw.png")
 		.set_sprite_frame_size(64, 64, false)
-		.set_scale(40, 40)
+		.set_scale(20, 20)
 		.set_position(player.getX(), player.getY())
 		.set_center(0.5, 0.0);
-	for (int r = 6; r > 0; r--)
+	for (int r = 6; r > -1; r--)
 	{
 		unsigned int row = 64 * r;
 		useEMP.push_frame_row("throw", 0, row, 64, 0, 5);
@@ -767,26 +969,38 @@ void UIElements()
 	{
 		health.set_animation("health3");
 	}
-	EMPicon.draw();
-	if (enemy1.FOV(player.getCoord()))
+	if (player.getEMP() > 0)
 	{
-		//text::draw_string("!", "TimesNewRoman", 1200, 640, 3.0f);
-		//Text::draw_string("Visible", "FFF", 1150, 690, 0.75f);
-		eye.set_frame(0);
-		spotted = true;
+		EMPicon.draw();
 	}
-	else if (spotLight1.FOV(player.getCoord()))
+	for (int i = 0; i < guards.size(); i++)
 	{
-		eye.set_frame(0);
-	}
-	else
-	{
-		//Text::draw_string("Hidden", "FFF", 1150, 690, 0.75f);
-		eye.set_frame(1);
+		if (guards[i]->FOV(player.getCoord()))
+		{
+			eye.set_frame(0);
+			if (guards[i]->weapon == true)
+			{
+				spotted = true;
+			}
+		}
+		else
+		{
+			//Text::draw_string("Hidden", "FFF", 1150, 690, 0.75f);
+			eye.set_frame(1);
+		}
 	}
 	///////////////////////////////////////
 
 }
+
+void resetEMP(std::vector<KeyHolder*> &guardo)
+{
+	for (int i = 0; i < guardo.size(); i++)
+	{
+		guardo[i]->flashlight = true;
+	}
+}
+
 
 
 //main function aka the boss
@@ -807,7 +1021,8 @@ int main()
 	////////////////////////////
 	
 	//initialize collision object properties////////
-	SetupCollisionProperties();
+	if (level1)
+		SetupCollisionProperties();
 	////////////////////////////////////////////////
 
 	guards.push_back(&enemy1);
@@ -821,6 +1036,7 @@ int main()
 		if (dead == true)
 		{
 			lives -= 1;
+			resetEMP(guards);
 			dead = false;
 		}
 		//CAMERA SETTINGS/////////
@@ -835,7 +1051,10 @@ int main()
 		////////////////////////////////////////////////
 
 		//NOW SET THE CAMERA/////////////////////
-		game.set_ortho_window(cx, cy, (width - 100), (height - 100));
+		if (level1)
+			game.set_ortho_window(cx, cy, (width - 100), (height - 100));
+		else if (level2)
+			game.set_ortho_window(cx, cy, (width - 250), (height - 175));
 		////////////////////////////////////////
 
 		//get keyboard function per frame
@@ -850,7 +1069,12 @@ int main()
 		////////////////////////////
 
 		//collision info///////
-		bottomTopCollision();
+		if (level1)
+			bottomTopCollision();
+		else if (level2)
+		{
+			bottomTopCollision2();
+		}
 		///////////////////////
 
 		//enemy pathing info//////
@@ -910,10 +1134,11 @@ int main()
 		//back up at the drawing of the player, the getX() and getY() will return the updated numbers, so the rectangle will retain these coords
 		//As I like to say, easy peasy lemon squeezy
 		
+		terminal1.setCOORD(tx, ty);
 		//update first enemy position per frame
 		enemy1.setCoord(ex, ey);
 		spotLight1.setCoord(sx, sy);
-		spotLight1.setDirection(0.25, 1);
+		spotLight1.setDirection(0.4, 1);
 
 		//UI ELEMENTS//////////////////////////
 		game.set_ortho_window(0.0f, 0.0f, 1280.0f, 720.0f); //reset ortho matrix for UI elements
