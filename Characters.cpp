@@ -40,9 +40,9 @@ bool KeyHolder::FOV(COORD2 a_player) //this is where the magic is
 		vec2 view(enemy.X - a_player.X, enemy.Y - a_player.Y);
 		float magnitude = view.getMagnitude(); //declared in vectory.cpp
 		float angle = view.getAngle(view, direction); //also in vectory.cpp
-		if (magnitude <= 10 && (angle < (27 * pi) / 180 && angle > -(27 * pi) / 180))	//this is the magic, if the player exists
+		if (magnitude <= 100 && (angle < (27 * pi) / 180 && angle > -(27 * pi) / 180))	//this is the magic, if the player exists
 		{																				//within a certain range of angles
-			key = false;																//that add up to a 60 degree FOV
+																						//that add up to a 60 degree FOV
 			return true;																//and about 20 (pixels probably?)
 		}																				//also, the key is destroyed upon a keyholder seeing the player
 		else																			//If not, then the enemy has not seen the player
@@ -63,8 +63,7 @@ bool Guard::FOV(COORD2 a_player) //this is where the magic is
 		vec2 view(enemy.X - a_player.X, enemy.Y - a_player.Y);
 		float magnitude = view.getMagnitude(); //declared in vectory.cpp
 		float angle = view.getAngle(view, direction); //also in vectory.cpp
-		if (magnitude <= 100 && (angle < (27 * pi) 
-			/ 180 && angle > -(27 * pi) / 180))	//this is the magic, if the player exists
+		if (magnitude <= 55 && (angle < (27 * pi) / 180 && angle > -(45 * pi) / 180))	//this is the magic, if the player exists
 		{										//within a certain range of angles
 			return true;						//that add up to a 54 degree FOV
 		}										//and about 200 pixels
@@ -79,10 +78,8 @@ bool Guard::FOV(COORD2 a_player) //this is where the magic is
 	}
 }
 
-bool Spotlight::FOV(COORD2 a_player) //this is where the magic is
+bool Guard2::FOV(COORD2 a_player) //this is where the magic is
 {
-	if (flashlight == true) //while the flashlight is lit, then the enemy can spot the player
-	{
 		vec2 view(enemy.X - a_player.X, enemy.Y - a_player.Y);
 		float magnitude = view.getMagnitude(); //declared in vectory.cpp
 		float angle = view.getAngle(view, direction); //also in vectory.cpp
@@ -95,6 +92,27 @@ bool Spotlight::FOV(COORD2 a_player) //this is where the magic is
 		{										//If not, then the enemy has not seen the player
 			return false;						//thus, nothing happens
 		}										//and these comments are useless
+	
+}
+
+bool Spotlight::FOV(COORD2 a_player) //this is where the magic is
+{
+	if (flashlight == true) //while the flashlight is lit, then the enemy can spot the player
+	{
+		vec2 view(enemy.X - a_player.X, enemy.Y - a_player.Y);
+		float magnitude = view.getMagnitude(); //declared in vectory.cpp
+		float angle = view.getAngle(view, direction); //also in vectory.cpp
+		if (magnitude <= 100 && (angle < (27 * pi)
+			/ 180 && angle > -(27 * pi) / 180))	//this is the magic, if the player exists
+		{	
+												//within a certain range of angles
+			return true;						//that add up to a 54 degree FOV
+		}										//and about 200 pixels
+		else									//also, the key is destroyed upon a keyholder seeing the player
+		{		
+												//If not, then the enemy has not seen the player
+			return false;						//thus, nothing happens
+		}										//and these comments are useless
 	}
 	else
 	{
@@ -104,21 +122,17 @@ bool Spotlight::FOV(COORD2 a_player) //this is where the magic is
 
 bool Player::FOV(COORD2 a_player)
 {
-	if (flashlight == true)
+	vec2 view(player.X - a_player.X, player.Y - a_player.Y);
+	float magnitude = view.getMagnitude(); //declared in vectory.cpp
+	if (magnitude <= 15)
 	{
-		vec2 view(player.X - a_player.X, player.Y - a_player.Y);
-		float magnitude = view.getMagnitude(); //declared in vectory.cpp
-		if (magnitude <= 40)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return true;
 	}
 	else
+	{
 		return false;
+	}
+	
 }
 
 void KeyHolder::setCoord(float x, float y) //sets up the enemy's location based on the system's input
@@ -163,6 +177,29 @@ Guard::Guard()
 Guard::Guard(float x, float y)
 {
 	flashlight = true;
+	key = false;
+	setCoord(x, y);
+	carrier = false;
+	weapon = true;
+}
+
+Guard2::Guard2()
+{
+	if (inLight)
+		flashlight = true;
+	else
+		flashlight = false;
+	key = false;
+	carrier = false;
+	weapon = true;
+}
+
+Guard2::Guard2(float x, float y)
+{
+	if (inLight)
+		flashlight = true;
+	else
+		flashlight = false;
 	key = false;
 	setCoord(x, y);
 	carrier = false;

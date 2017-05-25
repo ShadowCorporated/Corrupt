@@ -15,6 +15,7 @@ public:
 	bool key; //if the player/enemy has a key = true
 	bool carrier;
 	bool weapon;
+	bool inLight;
 };
 
 class KeyHolder : public Character
@@ -46,6 +47,14 @@ public:
 	Guard();
 };
 
+class Guard2 : public KeyHolder //for the FOV functionality, hell yeah!
+{
+public:
+	Guard2(float x, float y); //different declaration of subtype of Keyholder. Guard.key = false
+	bool FOV(COORD2 a_player) override;
+	Guard2();
+};
+
 class Spotlight : public KeyHolder
 {
 public:
@@ -67,7 +76,7 @@ public:
 	virtual bool FOV(COORD2 a_player) override;
 
 	void setCoord(float x, float y); //sets the player position on the map
-	void addEMP( SmallElectric &); //adds EMP's to the player inventory
+	void addEMP(SmallElectric &); //adds EMP's to the player inventory
 	void useEMP(std::vector<KeyHolder*>&); //lets the player use EMPs to knock out enemy lights
 	int getEMP();
 
